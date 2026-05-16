@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Command Centre v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070d;--s1:#0e0e1a;--s2:#161624;--s3:#1d1d2e;--s4:#252538;
+  --b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.09);--b3:rgba(255,255,255,0.16);
+  --txt:#eeeef8;--mut:#606080;--mut2:#9090b8;
+  --k:#f97316;--kg:rgba(249,115,22,0.13);--kb:rgba(249,115,22,0.25);
+  --u:#06b6d4;--ug:rgba(6,182,212,0.13);--ub:rgba(6,182,212,0.25);
+  --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--info:#818cf8;
+  --purple:#7c3aed;--purpleg:rgba(124,58,237,0.13);
+  --research:#a855f7;--researchg:rgba(168,85,247,0.13);
+  --rad:10px;--rad2:14px;--rad3:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--b3);border-radius:4px;}
+
+/* LOGIN */
+#loginWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:999;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(124,58,237,.22) 0%,transparent 65%),var(--bg);}
+.lb{width:440px;background:var(--s1);border:1px solid var(--b3);border-radius:var(--rad3);padding:48px 42px;
+  box-shadow:0 0 120px rgba(124,58,237,.12);}
+.lb-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}
+.lb-logo .kc{color:var(--k);}.lb-logo .uc{color:var(--u);}
+.lb-sub{color:var(--mut);font-size:11px;margin-bottom:12px;}
+.lb-features{background:var(--s2);border-radius:var(--rad);padding:12px 14px;margin-bottom:24px;border-left:3px solid var(--purple);}
+.lb-features div{font-size:11px;color:var(--mut2);line-height:1.8;}
+.lb-features span{color:var(--txt);font-weight:500;}
+.lb-lbl{font-size:10px;color:var(--mut);letter-spacing:.09em;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.lb-in{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:11px 15px;color:var(--txt);font-size:14px;font-family:'DM Sans';outline:none;
+  margin-bottom:14px;transition:border-color .2s;}
+.lb-in:focus{border-color:var(--purple);}
+.lb-btn{width:100%;background:linear-gradient(135deg,var(--purple),#6d28d9);border:none;
+  border-radius:var(--rad);padding:12px;color:#fff;font-size:14px;font-weight:600;
+  font-family:'Syne';cursor:pointer;transition:opacity .2s;}
+.lb-btn:hover{opacity:.88;}
+.lb-err{color:var(--err);font-size:12px;margin-top:8px;text-align:center;display:none;}
+
+/* KEY MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;display:flex;
+  align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.modal{background:var(--s1);border:1px solid var(--b3);border-radius:var(--rad3);
+  padding:32px 28px;width:500px;max-width:96vw;max-height:92vh;overflow-y:auto;}
+.modal h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:7px;}
+.fpill{display:inline-block;background:rgba(34,197,94,.14);color:#22c55e;font-size:10px;
+  font-weight:700;padding:2px 10px;border-radius:20px;border:1px solid rgba(34,197,94,.28);margin-bottom:12px;}
+.modal p{color:var(--mut);font-size:12px;line-height:1.7;margin-bottom:14px;}
+.steps{background:var(--s2);border-radius:var(--rad);padding:12px 14px;margin-bottom:14px;}
+.step{display:flex;gap:9px;margin-bottom:8px;font-size:12px;color:var(--mut);line-height:1.5;}
+.step:last-child{margin-bottom:0;}
+.sn{background:var(--purple);color:#fff;font-size:10px;font-weight:700;width:17px;height:17px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step a{color:#a78bfa;text-decoration:none;font-weight:600;}
+.step b{color:var(--txt);}
+.modal-in{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:10px 13px;color:var(--txt);font-size:13px;font-family:'DM Sans';outline:none;
+  margin-bottom:10px;transition:border-color .2s;}
+.modal-in:focus{border-color:var(--purple);}
+.modal-btn{width:100%;background:linear-gradient(135deg,var(--purple),#6d28d9);border:none;
+  border-radius:var(--rad);padding:11px;color:#fff;font-size:13px;font-weight:600;
+  font-family:'Syne';cursor:pointer;transition:opacity .2s;margin-bottom:7px;}
+.modal-btn:hover{opacity:.88;}
+.test-btn{width:100%;padding:9px;border-radius:var(--rad);border:1px solid var(--b3);
+  background:transparent;color:var(--mut2);font-family:'DM Sans';font-size:12px;
+  cursor:pointer;transition:all .2s;margin-bottom:7px;}
+.test-btn:hover{background:var(--s2);color:var(--txt);}
+.modal-note{font-size:11px;color:var(--mut);text-align:center;line-height:1.5;}
+.model-sel{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:9px 13px;color:var(--txt);font-size:12px;font-family:'DM Sans';outline:none;
+  margin-bottom:10px;cursor:pointer;}
+.prov-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+.pc{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:9px 11px;cursor:pointer;transition:all .15s;text-align:center;}
+.pc:hover,.pc.sel{border-color:var(--purple);background:var(--purpleg);}
+.pc .pn{font-size:12px;font-weight:600;color:var(--txt);}
+.pc .pf{font-size:10px;color:var(--ok);margin-top:1px;}
+#testResult{margin-top:8px;font-size:12px;line-height:1.6;display:none;padding:10px;border-radius:8px;}
+
+/* APP */
+#app{display:none;height:100vh;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{height:50px;display:flex;align-items:center;padding:0 18px;gap:10px;
+  border-bottom:1px solid var(--b1);background:rgba(7,7,13,.95);backdrop-filter:blur(24px);
+  flex-shrink:0;z-index:50;}
+.tb-logo{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;white-space:nowrap;
+  background:linear-gradient(135deg,var(--k),var(--purple));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;}
+.proj-sw{display:flex;gap:3px;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:3px;}
+.psw{padding:4px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;
+  border:none;background:transparent;color:var(--mut);font-family:'DM Sans';transition:all .16s;}
+.psw.pk{background:var(--kg);color:var(--k);border:1px solid var(--kb);}
+.psw.pu{background:var(--ug);color:var(--u);border:1px solid var(--ub);}
+.view-sw{display:flex;gap:3px;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:3px;margin-left:auto;}
+.vsw{padding:4px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;
+  border:none;background:transparent;color:var(--mut);font-family:'DM Sans';transition:all .16s;
+  text-transform:uppercase;letter-spacing:.03em;}
+.vsw:hover{color:var(--txt);}
+.vsw.active{background:var(--s3);color:var(--txt);border:1px solid var(--b2);}
+.tb-right{display:flex;gap:6px;align-items:center;}
+.tbadge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.tbadge-ok{background:rgba(34,197,94,.14);color:#22c55e;border:1px solid rgba(34,197,94,.25);}
+.tbadge-info{background:rgba(129,140,248,.14);color:#818cf8;border:1px solid rgba(129,140,248,.25);}
+.tbadge-research{background:var(--researchg);color:var(--research);border:1px solid rgba(168,85,247,.3);}
+.tbb{height:28px;padding:0 10px;border-radius:7px;border:1px solid var(--b2);
+  background:transparent;color:var(--mut);font-family:'DM Sans';font-size:11px;
+  cursor:pointer;transition:all .15s;}
+.tbb:hover{background:var(--s2);color:var(--txt);}
+.auto-toggle{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;
+  border:1px solid var(--b2);cursor:pointer;font-size:11px;color:var(--mut);
+  background:transparent;font-family:'DM Sans';transition:all .15s;}
+.auto-toggle.on{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#22c55e;}
+.toggle-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+/* VIEWS */
+.view{display:none;flex:1;overflow:hidden;}
+.view.active{display:flex;}
+
+/* ═══════════════ TEAM VIEW ═══════════════ */
+#vTeam{flex-direction:row;}
+
+/* Sidebar */
+.team-sb{width:196px;flex-shrink:0;border-right:1px solid var(--b1);background:var(--s1);
+  overflow-y:auto;display:flex;flex-direction:column;}
+.tsb-proj{padding:10px 12px 6px;border-bottom:1px solid var(--b1);}
+.tsb-pname{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;}
+.tsb-pname.kc{color:var(--k);}.tsb-pname.uc{color:var(--u);}
+.tsb-pdesc{font-size:10px;color:var(--mut);margin-top:2px;line-height:1.4;}
+.tsb-sec{font-size:9px;color:var(--mut);letter-spacing:.09em;text-transform:uppercase;
+  font-weight:600;padding:9px 12px 4px;}
+.anode{padding:7px 10px;cursor:pointer;transition:all .13s;border-left:3px solid transparent;margin:1px 0;}
+.anode:hover{background:var(--s2);}
+.anode.sel{border-left-color:var(--k);}
+.anode.sel.u-s{border-left-color:var(--u);}
+.anode.sel{background:var(--kg);}
+.anode.sel.u-s{background:var(--ug);}
+.an-row{display:flex;align-items:center;gap:8px;}
+.an-em{font-size:15px;width:28px;height:28px;border-radius:8px;background:var(--s2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.anode.sel .an-em{background:rgba(249,115,22,.18);}
+.anode.sel.u-s .an-em{background:rgba(6,182,212,.18);}
+.an-role{font-size:9px;font-weight:600;letter-spacing:.03em;color:var(--mut);}
+.anode.sel .an-role{color:var(--k);}
+.anode.sel.u-s .an-role{color:var(--u);}
+.an-name{font-size:12px;font-weight:500;color:var(--txt);}
+.an-stat{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:1px 6px;
+  border-radius:10px;margin-top:3px;font-weight:500;}
+.st-idle{background:var(--s3);color:var(--mut);}
+.st-thinking{background:rgba(129,140,248,.15);color:#818cf8;}
+.st-researching{background:var(--researchg);color:var(--research);}
+.st-working{background:rgba(245,158,11,.12);color:var(--warn);}
+.st-reported{background:rgba(34,197,94,.12);color:var(--ok);}
+.st-messaging{background:rgba(6,182,212,.12);color:var(--u);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 1s linear infinite;}
+
+/* Main feed */
+.feed-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.feed-hdr{padding:11px 18px;border-bottom:1px solid var(--b1);background:var(--s1);
+  display:flex;align-items:center;gap:11px;flex-shrink:0;}
+.fh-ico{width:38px;height:38px;border-radius:10px;background:var(--s2);
+  border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:19px;}
+.fh-n{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.fh-t{font-size:10px;color:var(--mut);margin-top:2px;}
+.fh-skl{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
+.skp{font-size:9px;padding:2px 7px;border-radius:20px;background:var(--s2);
+  border:1px solid var(--b2);color:var(--mut);}
+.fh-r{margin-left:auto;display:flex;gap:6px;}
+.hbtn{padding:4px 10px;border-radius:7px;border:1px solid var(--b2);
+  background:transparent;color:var(--mut);font-family:'DM Sans';font-size:11px;
+  cursor:pointer;transition:all .13s;}
+.hbtn:hover{color:var(--txt);background:var(--s2);}
+.hbtn.primary{background:var(--purple);color:#fff;border-color:var(--purple);}
+.hbtn.research{background:var(--researchg);color:var(--research);border-color:rgba(168,85,247,.3);}
+
+/* Feed messages */
+.feed{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px;}
+.fm{display:flex;gap:9px;}
+.fm.user{flex-direction:row-reverse;align-self:flex-end;max-width:72%;}
+.fm.agent{max-width:88%;}
+.fm.sys{align-self:center;max-width:90%;}
+.fm.delegation{max-width:94%;}
+.fm.report{max-width:94%;}
+.fm.a2a{max-width:90%;}
+.fm.research{max-width:94%;}
+.fm.ceo{max-width:94%;}
+
+.fav{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex-shrink:0;background:var(--s2);border:1px solid var(--b2);}
+.fm.user .fav{background:var(--purple);border-color:var(--purple);font-size:9px;font-weight:800;color:#fff;}
+
+.fbody{min-width:0;flex:1;}
+.fmeta{font-size:10px;color:var(--mut);margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.fm.user .fmeta{justify-content:flex-end;}
+.fwho{font-weight:600;color:var(--mut2);}
+.ftag{font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;letter-spacing:.03em;}
+.tag-del{background:var(--kg);color:var(--k);}
+.tag-del.u{background:var(--ug);color:var(--u);}
+.tag-rep{background:rgba(34,197,94,.12);color:var(--ok);}
+.tag-a2a{background:var(--ug);color:var(--u);}
+.tag-research{background:var(--researchg);color:var(--research);}
+.tag-ceo{background:var(--purpleg);color:#a78bfa;}
+.tag-auto{background:rgba(245,158,11,.12);color:var(--warn);}
+.ftime{font-size:9px;color:var(--mut);}
+
+/* Bubbles */
+.bub{border-radius:11px;padding:10px 13px;font-size:12px;line-height:1.75;word-wrap:break-word;}
+.bub-user{background:var(--purple);color:#fff;border-radius:11px 11px 3px 11px;}
+.bub-agent{background:var(--s1);border:1px solid var(--b2);border-radius:11px 11px 11px 3px;}
+.bub-sys{background:var(--s3);border-radius:9px;padding:7px 13px;font-size:11px;
+  color:var(--mut);text-align:center;border:1px solid var(--b1);}
+.bub-del{background:var(--s2);border:1px solid var(--kb);border-left:3px solid var(--k);border-radius:11px;}
+.bub-del.u{border-color:var(--ub);border-left-color:var(--u);}
+.bub-rep{background:var(--s2);border:1px solid rgba(34,197,94,.25);border-left:3px solid var(--ok);border-radius:11px;}
+.bub-a2a{background:var(--s2);border:1px solid var(--ub);border-left:3px solid var(--u);border-radius:11px;}
+.bub-research{background:var(--s2);border:1px solid rgba(168,85,247,.25);border-left:3px solid var(--research);border-radius:11px;}
+.bub-ceo{background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(249,115,22,.06));
+  border:1px solid rgba(124,58,237,.25);border-left:3px solid var(--purple);border-radius:11px;}
+.bub-auto{background:var(--s2);border:1px solid rgba(245,158,11,.2);border-left:3px solid var(--warn);border-radius:11px;}
+
+.bub-hdr{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding-bottom:8px;
+  border-bottom:1px solid var(--b2);font-size:11px;}
+.bub-hdr.rep-hdr{border-bottom-color:rgba(34,197,94,.2);}
+.bub-hdr.research-hdr{border-bottom-color:rgba(168,85,247,.2);}
+.bh-from{font-weight:600;color:var(--mut2);}
+.bh-arrow{color:var(--mut);}
+.bh-to{font-weight:600;}
+
+/* Research block */
+.research-sources{margin-top:8px;padding-top:8px;border-top:1px solid rgba(168,85,247,.15);}
+.rs-title{font-size:10px;color:var(--research);font-weight:600;margin-bottom:5px;letter-spacing:.04em;}
+.rs-item{font-size:10px;color:var(--mut2);padding:3px 0;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:5px;}
+.rs-item:last-child{border-bottom:none;}
+.rs-num{color:var(--research);font-weight:700;flex-shrink:0;}
+
+/* Typing */
+.typing-row{display:flex;gap:9px;}
+.typing-bub{background:var(--s1);border:1px solid var(--b2);border-radius:11px 11px 11px 3px;
+  padding:10px 13px;display:flex;gap:4px;align-items:center;}
+.typing span{width:5px;height:5px;background:var(--mut);border-radius:50%;animation:bounce 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.typing-label{font-size:10px;color:var(--mut);margin-bottom:4px;}
+
+/* Welcome */
+.welcome-feed{text-align:center;padding:40px 20px;margin:auto;}
+.wf-ico{font-size:40px;margin-bottom:12px;}
+.wf-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px;}
+.wf-sub{color:var(--mut);font-size:12px;line-height:1.7;max-width:400px;margin:0 auto 20px;}
+.wf-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:500px;margin:0 auto;}
+.wf-card{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad2);padding:12px 14px;
+  cursor:pointer;transition:all .15s;text-align:left;}
+.wf-card:hover{border-color:var(--purple);background:var(--purpleg);}
+.wf-card-ico{font-size:18px;margin-bottom:6px;}
+.wf-card-title{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:3px;}
+.wf-card-desc{font-size:11px;color:var(--mut);line-height:1.4;}
+
+/* Input */
+.input-area{padding:10px 18px 13px;border-top:1px solid var(--b1);background:var(--s1);flex-shrink:0;}
+.mode-tabs{display:flex;gap:4px;margin-bottom:8px;}
+.mtab{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;
+  border:none;background:transparent;color:var(--mut);font-family:'DM Sans';
+  letter-spacing:.03em;text-transform:uppercase;transition:all .14s;}
+.mtab:hover{color:var(--txt);}
+.mtab.on{background:var(--s3);color:var(--txt);border:1px solid var(--b2);}
+.mtab.research-on{background:var(--researchg);color:var(--research);border:1px solid rgba(168,85,247,.3);}
+.input-row{display:flex;gap:7px;align-items:flex-end;}
+.main-in{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:11px;
+  padding:9px 13px;color:var(--txt);font-size:13px;font-family:'DM Sans';outline:none;
+  resize:none;min-height:40px;max-height:110px;line-height:1.6;transition:border-color .2s;}
+.main-in:focus{border-color:var(--purple);}
+.main-in.research-mode{border-color:rgba(168,85,247,.4);}
+.main-in::placeholder{color:var(--mut);}
+.send-btn{height:40px;padding:0 14px;border-radius:10px;background:linear-gradient(135deg,var(--purple),#6d28d9);
+  border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:600;font-family:'Syne';
+  white-space:nowrap;transition:opacity .2s,transform .1s;flex-shrink:0;}
+.send-btn:hover{opacity:.85;}
+.send-btn:active{transform:scale(.96);}
+.send-btn:disabled{opacity:.3;cursor:not-allowed;}
+.send-btn.research-btn{background:linear-gradient(135deg,var(--research),#9333ea);}
+.input-hint{font-size:10px;color:var(--mut);margin-top:5px;}
+.quick-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
+.qc{font-size:11px;padding:4px 10px;border-radius:18px;border:1px solid var(--b2);
+  background:var(--s2);color:var(--mut);cursor:pointer;transition:all .13s;font-family:'DM Sans';}
+.qc:hover{color:var(--txt);border-color:var(--purple);background:var(--purpleg);}
+.qc.research{border-color:rgba(168,85,247,.3);color:var(--research);background:var(--researchg);}
+
+/* Right panel */
+.right-panel{width:232px;flex-shrink:0;border-left:1px solid var(--b1);background:var(--s1);
+  display:flex;flex-direction:column;overflow:hidden;}
+.rp-hdr{padding:10px 12px;border-bottom:1px solid var(--b1);}
+.rp-tabs{display:flex;gap:2px;}
+.rpt{flex:1;padding:5px 0;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);cursor:pointer;text-align:center;border:none;background:transparent;
+  font-family:'DM Sans';transition:all .13s;border-bottom:2px solid transparent;}
+.rpt.on{color:var(--txt);border-bottom-color:var(--purple);}
+.rp-body{flex:1;overflow-y:auto;padding:10px 10px;}
+.rp-sec{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;
+  font-weight:600;margin-bottom:8px;margin-top:12px;}
+.rp-sec:first-child{margin-top:0;}
+.rep-card{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:9px 10px;margin-bottom:7px;}
+.rc-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.rc-em{font-size:13px;width:22px;height:22px;background:var(--s1);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rc-n{font-size:11px;font-weight:600;}
+.rc-r{font-size:10px;color:var(--mut);}
+.rc-proj{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;}
+.rc-proj.k{background:var(--kg);color:var(--k);}
+.rc-proj.u{background:var(--ug);color:var(--u);}
+.rc-body{font-size:11px;color:var(--mut2);line-height:1.5;margin-bottom:6px;}
+.rc-time{font-size:9px;color:var(--mut);}
+.standup-btn{width:100%;padding:8px;border-radius:var(--rad);
+  background:linear-gradient(135deg,var(--purple),#6d28d9);border:none;color:#fff;
+  font-size:11px;font-weight:600;font-family:'Syne';cursor:pointer;margin-bottom:8px;
+  transition:opacity .2s;}
+.standup-btn:hover{opacity:.88;}
+.standup-btn:disabled{opacity:.35;cursor:not-allowed;}
+.mem-item{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:8px 10px;margin-bottom:6px;}
+.mi-key{font-size:10px;font-weight:600;color:var(--txt);margin-bottom:2px;}
+.mi-val{font-size:11px;color:var(--mut2);line-height:1.4;}
+.mi-proj{font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;display:inline-block;margin-bottom:3px;}
+.mi-proj.k{background:var(--kg);color:var(--k);}
+.mi-proj.u{background:var(--ug);color:var(--u);}
+.sched-item{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.si-ico{font-size:14px;}
+.si-inf{flex:1;min-width:0;}
+.si-t{font-size:11px;font-weight:500;color:var(--txt);}
+.si-next{font-size:10px;color:var(--mut);}
+.si-tog{width:28px;height:16px;border-radius:20px;background:var(--s3);border:none;
+  cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.si-tog.on{background:var(--ok);}
+.si-tog::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;
+  background:#fff;border-radius:50%;transition:transform .2s;}
+.si-tog.on::after{transform:translateX(12px);}
+.empty-rp{text-align:center;padding:20px 8px;color:var(--mut);font-size:11px;line-height:1.6;}
+
+/* TASK BOARD */
+#vBoard{gap:0;overflow:hidden;}
+.board-outer{flex:1;display:flex;overflow-x:auto;padding:12px;gap:10px;align-items:flex-start;}
+.add-col{min-width:210px;max-width:210px;background:var(--s1);border:1px solid var(--b2);
+  border-radius:var(--rad2);padding:12px;display:flex;flex-direction:column;gap:8px;}
+.ac-t{font-size:11px;font-weight:600;color:var(--mut2);margin-bottom:2px;}
+.ac-l{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.ac-sel{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:7px 9px;color:var(--txt);font-family:'DM Sans';font-size:12px;outline:none;}
+.ac-ta{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:7px 9px;color:var(--txt);font-family:'DM Sans';font-size:12px;outline:none;
+  resize:none;min-height:65px;line-height:1.5;}
+.ac-ta:focus,.ac-sel:focus{border-color:var(--purple);}
+.ac-run{width:100%;padding:8px;border-radius:var(--rad);
+  background:linear-gradient(135deg,var(--purple),#6d28d9);border:none;color:#fff;
+  font-size:12px;font-weight:600;font-family:'Syne';cursor:pointer;transition:opacity .2s;}
+.ac-run:hover{opacity:.88;}
+.ac-run:disabled{opacity:.35;cursor:not-allowed;}
+.ac-research{width:100%;padding:7px;border-radius:var(--rad);
+  background:var(--researchg);border:1px solid rgba(168,85,247,.3);color:var(--research);
+  font-size:11px;font-weight:600;font-family:'DM Sans';cursor:pointer;transition:opacity .2s;}
+.ac-research:hover{opacity:.8;}
+.board-col{min-width:238px;max-width:238px;background:var(--s1);border:1px solid var(--b2);
+  border-radius:var(--rad2);display:flex;flex-direction:column;max-height:calc(100vh - 80px);}
+.bc-h{padding:9px 12px;border-bottom:1px solid var(--b1);display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;}
+.bc-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  display:flex;align-items:center;gap:6px;}
+.bc-dot{width:6px;height:6px;border-radius:50%;}
+.bc-cnt{font-size:10px;background:var(--s3);padding:2px 7px;border-radius:10px;color:var(--mut);}
+.bc-b{flex:1;overflow-y:auto;padding:8px;}
+.tcard{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);
+  padding:9px 11px;margin-bottom:6px;transition:border-color .13s;}
+.tcard:hover{border-color:var(--b3);}
+.tc-t{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.tc-proj{font-size:9px;font-weight:700;padding:2px 6px;border-radius:9px;}
+.tc-proj.k{background:var(--kg);color:var(--k);}
+.tc-proj.u{background:var(--ug);color:var(--u);}
+.tc-ag{font-size:11px;font-weight:500;flex:1;color:var(--txt);}
+.tc-type{font-size:9px;padding:1px 6px;border-radius:8px;}
+.tc-type.research{background:var(--researchg);color:var(--research);}
+.tc-title{font-size:11px;color:var(--txt);line-height:1.4;margin-bottom:5px;}
+.tc-prev{background:var(--s1);border:1px solid var(--b1);border-radius:6px;
+  padding:6px 8px;margin-bottom:5px;font-size:10px;color:var(--mut2);line-height:1.5;
+  max-height:60px;overflow:hidden;}
+.tc-foot{display:flex;align-items:center;justify-content:space-between;}
+.tc-time{font-size:9px;color:var(--mut);}
+.tc-btns{display:flex;gap:3px;}
+.tcb{font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid var(--b2);
+  background:transparent;color:var(--mut);cursor:pointer;font-family:'DM Sans';transition:all .12s;}
+.tcb:hover{background:var(--s3);color:var(--txt);}
+.tcb.blue{background:rgba(129,140,248,.1);color:#818cf8;border-color:rgba(129,140,248,.25);}
+.tcb.red{color:var(--err);}
+.tcb.research{background:var(--researchg);color:var(--research);border-color:rgba(168,85,247,.25);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 1.4s infinite;}
+
+/* ANALYTICS */
+#vAnalytics{flex-direction:column;overflow-y:auto;}
+.an-wrap{padding:18px 22px;display:flex;flex-direction:column;gap:12px;}
+.an-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.kpi{background:var(--s1);border:1px solid var(--b2);border-radius:var(--rad2);padding:13px 15px;}
+.kpi-l{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;font-weight:600;}
+.kpi-v{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;line-height:1;}
+.kpi-s{font-size:10px;color:var(--mut);margin-top:3px;}
+.an-row{display:grid;grid-template-columns:1.3fr 1fr;gap:10px;}
+.an-card{background:var(--s1);border:1px solid var(--b2);border-radius:var(--rad2);padding:13px 15px;}
+.an-t{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:11px;}
+.perf-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b1);}
+.perf-row:last-child{border-bottom:none;}
+.pr-em{font-size:13px;width:24px;height:24px;background:var(--s2);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pr-inf{flex:1;min-width:0;}
+.pr-n{font-size:11px;font-weight:500;}
+.pr-bw{display:flex;align-items:center;gap:5px;margin-top:2px;}
+.pr-bar{flex:1;height:3px;background:var(--s3);border-radius:2px;}
+.pr-fill{height:100%;border-radius:2px;transition:width .5s;}
+.pr-cnt{font-size:10px;color:var(--mut);}
+.pr-st{font-size:9px;font-weight:700;padding:2px 6px;border-radius:9px;}
+.ps-a{background:rgba(34,197,94,.12);color:#22c55e;}
+.ps-i{background:var(--s3);color:var(--mut);}
+.tl-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--b1);}
+.tl-item:last-child{border-bottom:none;}
+.tl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.tl-m{font-size:11px;font-weight:500;margin-bottom:2px;}
+.tl-s{font-size:10px;color:var(--mut);}
+
+/* Text formatting */
+.bub strong{font-weight:600;}
+.bub code{background:rgba(255,255,255,.1);padding:1px 4px;border-radius:3px;font-family:monospace;font-size:11px;}
+.bub pre{background:rgba(0,0,0,.45);border:1px solid var(--b2);border-radius:8px;
+  padding:10px 12px;margin:7px 0;overflow-x:auto;}
+.bub pre code{background:transparent;padding:0;font-size:11px;line-height:1.6;white-space:pre-wrap;}
+.bub h2{font-size:13px;font-weight:600;margin:9px 0 3px;}
+.bub h3{font-size:12px;font-weight:600;margin:7px 0 3px;}
+.bub ul,.bub ol{padding-left:15px;margin:4px 0;}
+.bub li{margin-bottom:2px;}
+.bub table{width:100%;border-collapse:collapse;margin:7px 0;font-size:11px;}
+.bub th{background:var(--s2);padding:5px 8px;text-align:left;border:1px solid var(--b2);}
+.bub td{padding:5px 8px;border:1px solid var(--b1);}
+
+@media(max-width:960px){.right-panel{display:none;}.an-kpis{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:680px){.team-sb{width:160px;}.an-row{grid-template-columns:1fr;}}
+@media(max-width:500px){.team-sb{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="lb">
+    <div class="lb-logo"><span class="kc">Kaamefy</span> + <span class="uc">UniSafeX</span></div>
+    <div class="lb-sub">AI Command Centre v4 — Autonomous Team</div>
+    <div class="lb-features">
+      <div>🧠 <span>CEO delegates</span> → team works → reports back</div>
+      <div>🔍 <span>Deep Research Mode</span> — agents search the web</div>
+      <div>💬 <span>Agent-to-Agent</span> messaging (Dev ↔ Maya)</div>
+      <div>🤖 <span>Autonomous Mode</span> — team runs on its own</div>
+      <div>🧠 <span>Memory</span> — agents remember past decisions</div>
+      <div>⏰ <span>Scheduled Standups</span> — auto daily reports</div>
+    </div>
+    <div class="lb-lbl">Password</div>
+    <input type="password" class="lb-in" id="pwIn" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    <button class="lb-btn" onclick="login()">Enter →</button>
+    <div class="lb-err" id="pwErr">Wrong password.</div>
+  </div>
+</div>
+
+<!-- KEY MODAL -->
+<div class="moverlay" id="keyModal" style="display:none">
+  <div class="modal">
+    <h2>🔗 Connect AI Provider</h2>
+    <div class="fpill">✓ 100% FREE — No payment needed</div>
+    <p>Choose a provider. <b style="color:var(--txt)">Groq recommended</b> — free, fast, works perfectly from GitHub Pages.</p>
+    <div class="prov-grid">
+      <div class="pc sel" id="pc-groq" onclick="selProv('groq')"><div class="pn">⚡ Groq</div><div class="pf">Free · Fastest</div></div>
+      <div class="pc" id="pc-openrouter" onclick="selProv('openrouter')"><div class="pn">🔀 OpenRouter</div><div class="pf">Free models</div></div>
+      <div class="pc" id="pc-together" onclick="selProv('together')"><div class="pn">🤝 Together AI</div><div class="pf">$1 free credit</div></div>
+      <div class="pc" id="pc-gemini" onclick="selProv('gemini')"><div class="pn">🔵 Gemini</div><div class="pf">Free (hosted only)</div></div>
+    </div>
+    <div id="provSteps"></div>
+    <input type="text" class="modal-in" id="keyIn" placeholder="Paste API key...">
+    <select class="model-sel" id="modelSel"></select>
+    <button class="modal-btn" onclick="saveKey()">Connect & Launch →</button>
+    <button class="test-btn" onclick="testConn()">🔍 Test Connection First</button>
+    <div id="testResult"></div>
+    <div class="modal-note">🔒 Stored in browser session only.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo">⚡ AI Command Centre v4</div>
+    <div class="proj-sw">
+      <button class="psw pk" id="pt-k" onclick="switchProj('k')">🟠 Kaamefy</button>
+      <button class="psw" id="pt-u" onclick="switchProj('u')">🔵 UniSafeX</button>
+    </div>
+    <div class="view-sw">
+      <button class="vsw active" id="vsw-team" onclick="switchView('team')">🏢 Team</button>
+      <button class="vsw" id="vsw-board" onclick="switchView('board')">📋 Tasks</button>
+      <button class="vsw" id="vsw-analytics" onclick="switchView('analytics')">📊 Analytics</button>
+    </div>
+    <div class="tb-right">
+      <span class="tbadge tbadge-ok" id="onlineBadge">● 12 Online</span>
+      <span class="tbadge tbadge-info" id="provBadge">Groq</span>
+      <span class="tbadge tbadge-research" id="researchBadge" style="display:none">🔍 Research</span>
+      <button class="auto-toggle" id="autoToggle" onclick="toggleAuto()">
+        <span class="toggle-dot"></span> Auto Mode
+      </button>
+      <button class="tbb" onclick="document.getElementById('keyModal').style.display='flex'">⚙ AI</button>
+      <button class="tbb" onclick="exportAll()">📥 Export</button>
+      <button class="tbb" onclick="logout()">Exit</button>
+    </div>
+  </div>
+
+  <!-- TEAM VIEW -->
+  <div class="view active" id="vTeam">
+    <div class="team-sb" id="teamSb"></div>
+    <div class="feed-wrap">
+      <div class="feed-hdr" id="feedHdr"></div>
+      <div class="feed" id="feed"></div>
+      <div class="input-area">
+        <div class="mode-tabs">
+          <button class="mtab on" id="mt-direct" onclick="setMode('direct')">💬 Direct</button>
+          <button class="mtab" id="mt-team" onclick="setMode('team')">🏢 Full Team</button>
+          <button class="mtab" id="mt-research" onclick="setMode('research')">🔍 Deep Research</button>
+          <button class="mtab" id="mt-a2a" onclick="setMode('a2a')">↔ Agent Chat</button>
+        </div>
+        <div class="quick-row" id="quickRow"></div>
+        <div class="input-row">
+          <textarea class="main-in" id="mainIn" rows="1"
+            onkeydown="handleKey(event)" oninput="autoR(this)"
+            placeholder="Type your message or goal..."></textarea>
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">Send ↗</button>
+        </div>
+        <div class="input-hint" id="inputHint">Select a mode above · Enter to send · Shift+Enter new line</div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="rp-hdr">
+        <div class="rp-tabs">
+          <button class="rpt on" id="rpt-reports" onclick="rpTab('reports')">Reports</button>
+          <button class="rpt" id="rpt-memory" onclick="rpTab('memory')">Memory</button>
+          <button class="rpt" id="rpt-schedule" onclick="rpTab('schedule')">Schedule</button>
+        </div>
+      </div>
+      <div class="rp-body" id="rpBody"></div>
+    </div>
+  </div>
+
+  <!-- TASK BOARD -->
+  <div class="view" id="vBoard"></div>
+
+  <!-- ANALYTICS -->
+  <div class="view" id="vAnalytics"></div>
+</div>
+
+<script>
+// ═══════════════════════
+const PW = "admin123"; // ← change this
+// ═══════════════════════
+
+// ── PROVIDERS ──
+const PROVIDERS={
+  groq:{name:"Groq",url:"https://api.groq.com/openai/v1/chat/completions",format:"openai",
+    models:[{v:"llama-3.3-70b-versatile",l:"Llama 3.3 70B (Best)"},{v:"llama-3.1-8b-instant",l:"Llama 3.1 8B (Fast)"},{v:"mixtral-8x7b-32768",l:"Mixtral 8x7B"}],
+    steps:`<div class="steps"><div class="step"><div class="sn">1</div><div>Go to <a href="https://console.groq.com" target="_blank">console.groq.com</a> → free signup</div></div><div class="step"><div class="sn">2</div><div>Click <b>API Keys → Create Key</b></div></div><div class="step"><div class="sn">3</div><div>Copy key <b>(gsk_...)</b> → paste below</div></div></div>`},
+  openrouter:{name:"OpenRouter",url:"https://openrouter.ai/api/v1/chat/completions",format:"openai",
+    models:[{v:"meta-llama/llama-3.3-70b-instruct:free",l:"Llama 3.3 70B (Free)"},{v:"mistralai/mistral-7b-instruct:free",l:"Mistral 7B (Free)"},{v:"deepseek/deepseek-chat:free",l:"DeepSeek (Free)"}],
+    steps:`<div class="steps"><div class="step"><div class="sn">1</div><div>Go to <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → signup</div></div><div class="step"><div class="sn">2</div><div>Click <b>Keys → Create Key</b></div></div><div class="step"><div class="sn">3</div><div>Copy key <b>(sk-or-...)</b> → paste below</div></div></div>`},
+  together:{name:"Together AI",url:"https://api.together.xyz/v1/chat/completions",format:"openai",
+    models:[{v:"meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",l:"Llama 3.3 70B (Free)"},{v:"mistralai/Mixtral-8x7B-Instruct-v0.1",l:"Mixtral 8x7B"}],
+    steps:`<div class="steps"><div class="step"><div class="sn">1</div><div>Go to <a href="https://api.together.xyz" target="_blank">api.together.xyz</a></div></div><div class="step"><div class="sn">2</div><div>Settings → <b>API Keys → Create</b></div></div><div class="step"><div class="sn">3</div><div>Paste key → $1 free to start</div></div></div>`},
+  gemini:{name:"Gemini",url:"GEMINI",format:"gemini",
+    models:[{v:"gemini-1.5-flash-latest",l:"Gemini 1.5 Flash"},{v:"gemini-pro",l:"Gemini Pro"}],
+    steps:`<div class="steps"><div class="step"><div class="sn">1</div><div>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></div></div><div class="step"><div class="sn">2</div><div>Click <b>Create API Key</b></div></div><div class="step"><div class="sn">3</div><div>Paste key (AIza...) — needs hosting</div></div></div>`}
+};
+let curProvider="groq", curModel="llama-3.3-70b-versatile";
+
+function selProv(pid){
+  curProvider=pid;
+  document.querySelectorAll(".pc").forEach(c=>c.classList.remove("sel"));
+  document.getElementById("pc-"+pid).classList.add("sel");
+  const p=PROVIDERS[pid];
+  document.getElementById("provSteps").innerHTML=p.steps;
+  document.getElementById("modelSel").innerHTML=p.models.map(m=>`<option value="${m.v}">${m.l}</option>`).join('');
+}
+selProv("groq");
+
+// ── PROJECTS ──
+const PROJ={
+  k:{id:"k",name:"Kaamefy",emoji:"🟠",col:"var(--k)",bar:"#f97316",ceo:"k-ceo",
+     desc:"On-demand service marketplace — Flutter+Firebase"},
+  u:{id:"u",name:"UniSafeX",emoji:"🔵",col:"var(--u)",bar:"#06b6d4",ceo:"u-ceo",
+     desc:"Digital safety & QR identity for foreigners in India"}
+};
+
+// ── AGENTS with full context ──
+const AGENTS={
+  k:[
+    {id:"k-ceo",e:"🧠",role:"CEO",name:"Alex",proj:"k",reports_to:null,
+     manages:["k-cto","k-cmo","k-coo","k-content","k-seo"],
+     skills:["Strategy","Delegation","Fundraising","Vision"],
+     context:"CEO of Kaamefy — on-demand service marketplace (Flutter+Firebase) like Urban Company. Connects users with workers (labour, beauty, home). Creates employment for students/freshers. Issues certificates.",
+     sys:`You are Alex, CEO of Kaamefy. You are sharp, decisive, and action-oriented. You delegate tasks, synthesize reports, and brief the founder. When given a goal, you break it into specific tasks for your team: Dev (CTO), Maya (CMO), Sam (COO), Zara (Content), Noor (SEO). When team members report back, you compile a concise CEO briefing. You produce complete, specific, actionable outputs.`,
+     autonomousTasks:["Review team progress and flag any blockers","Check if marketing aligns with product timeline","Identify top 3 risks for this week","Prepare investor update summary"]},
+    {id:"k-cto",e:"💻",role:"CTO",name:"Dev",proj:"k",reports_to:"k-ceo",
+     manages:[],
+     skills:["Flutter","Firebase","Architecture","Code"],
+     context:"CTO building the Kaamefy Flutter+Firebase app: worker registration, admin approval, service categories, booking flow, certificate issuance, ratings.",
+     sys:`You are Dev, CTO of Kaamefy. You write production-ready Flutter+Firebase code. Your app: worker registration with admin approval, service categories (labour, beauty, home services), booking flow, certificate issuance, ratings. You report to CEO Alex. When asked for a status report, give specific technical updates. When assigned a task, produce complete working code with all imports.`,
+     autonomousTasks:["Code review checklist for current sprint","Identify technical debt items","Check Firebase security rules","Document new API endpoints"]},
+    {id:"k-cmo",e:"📣",role:"CMO",name:"Maya",proj:"k",reports_to:"k-ceo",
+     manages:["k-content","k-seo"],
+     skills:["Marketing","Growth","Campaigns","Social"],
+     context:"CMO handling all marketing for Kaamefy — India market, urban users, worker acquisition, user acquisition.",
+     sys:`You are Maya, CMO of Kaamefy. You handle all marketing for India's urban market. You manage Content Lead Zara and SEO Lead Noor. You produce complete marketing assets — actual copy, campaign briefs, ad text. You report to CEO Alex. Give specific status reports with real numbers and plans.`,
+     autonomousTasks:["Plan next week's social content","Identify top 3 marketing channels to test","Write worker recruitment ad copy","Analyze competitor marketing tactics"]},
+    {id:"k-coo",e:"⚙️",role:"COO",name:"Sam",proj:"k",reports_to:"k-ceo",
+     manages:[],
+     skills:["Operations","SOPs","Quality","Process"],
+     context:"COO managing Kaamefy operations: worker onboarding pipeline, quality control, customer support, city operations.",
+     sys:`You are Sam, COO of Kaamefy. You handle all operations: worker onboarding, quality control, customer support, city operations. You report to CEO Alex. Produce complete SOPs, checklists, process documents. Give specific operational status reports.`,
+     autonomousTasks:["Review worker onboarding funnel","Check quality metrics","Identify process bottlenecks","Prepare operations dashboard"]},
+    {id:"k-content",e:"✍️",role:"Content",name:"Zara",proj:"k",reports_to:"k-cmo",
+     manages:[],
+     skills:["Writing","LinkedIn","Email","Copywriting"],
+     context:"Content Lead for Kaamefy — app store copy, website content, social posts, email sequences, LinkedIn content.",
+     sys:`You are Zara, Content Lead for Kaamefy. You report to CMO Maya. You create complete, publish-ready content: app store copy, website copy, social posts, email sequences, LinkedIn posts. Warm, empowering tone for India's urban market. Give specific content status reports.`,
+     autonomousTasks:["Draft 3 LinkedIn posts for this week","Update app store description","Write worker success story","Create email for new user welcome"]},
+    {id:"k-seo",e:"🔍",role:"SEO",name:"Noor",proj:"k",reports_to:"k-cmo",
+     manages:[],
+     skills:["SEO","ASO","Keywords","Rankings"],
+     context:"SEO Lead for Kaamefy — keyword research, technical SEO, ASO, content briefs for India market.",
+     sys:`You are Noor, SEO Lead for Kaamefy. You report to CMO Maya. You produce complete SEO deliverables: keyword tables, ASO packages, technical audits, content briefs. India market focus. Give specific SEO status reports with data.`,
+     autonomousTasks:["Identify 10 new keyword opportunities","Check technical SEO issues","Create content brief for top keyword","Review competitor SEO strategy"]}
+  ],
+  u:[
+    {id:"u-ceo",e:"🧠",role:"CEO",name:"Aryan",proj:"u",reports_to:null,
+     manages:["u-cto","u-cmo","u-legal","u-content","u-ops"],
+     skills:["GovTech","B2G","Strategy","Expansion"],
+     context:"CEO of UniSafeX — QR-based digital identity platform for foreigners in India. Users upload passport/visa → QR safety ID → authorities scan for read-only info. Features: SOS, visa reminders, multilingual, embassy connect.",
+     sys:`You are Aryan, CEO of UniSafeX. You are building a GovTech platform for foreigners in India. You delegate tasks, synthesize reports, and brief the founder. When given a goal, you break it into specific tasks for: Riya (CTO), Sara (CMO), Priya (Legal), Zara (Content), Kiran (COO). Produce complete, specific, actionable outputs.`,
+     autonomousTasks:["Review government partnership pipeline","Identify regulatory risks","Prepare embassy outreach priority list","Check team progress on pilot city"]},
+    {id:"u-cto",e:"💻",role:"CTO",name:"Riya",proj:"u",reports_to:"u-ceo",
+     manages:[],
+     skills:["Security","QR System","DPDP","Backend"],
+     context:"CTO building UniSafeX: Flutter app, Node.js/Firebase backend, QR identity system, encrypted document storage, DPDP 2023 compliant.",
+     sys:`You are Riya, CTO of UniSafeX. You build security-first systems for foreigners' PII. Stack: Flutter, Node.js/Firebase, QR system, encrypted document storage. DPDP 2023 compliant. Report to CEO Aryan. Produce complete code and technical specs.`,
+     autonomousTasks:["Review security implementation checklist","Check DPDP compliance status","Document QR system architecture","Test SOS alert system"]},
+    {id:"u-cmo",e:"📣",role:"CMO",name:"Sara",proj:"u",reports_to:"u-ceo",
+     manages:["u-content"],
+     skills:["International","PR","Partnerships","Trust"],
+     context:"CMO targeting international tourists, foreign students, expats in India. Embassy partnerships, university outreach, trust-building.",
+     sys:`You are Sara, CMO of UniSafeX. You target international tourists, foreign students, expats in India. You manage Content Lead Zara. You produce complete partnership pitches, campaign briefs, press releases. Report to CEO Aryan.`,
+     autonomousTasks:["Draft embassy outreach email","Identify 5 target universities","Plan trust-building content campaign","Research expat community channels"]},
+    {id:"u-legal",e:"⚖️",role:"Legal",name:"Priya",proj:"u",reports_to:"u-ceo",
+     manages:[],
+     skills:["DPDP Act","Compliance","Privacy","GovPolicy"],
+     context:"Legal advisor for UniSafeX — DPDP 2023, IT Act, Foreigners Act, privacy policy, government data agreements.",
+     sys:`You are Priya, Legal Advisor for UniSafeX. You write complete usable legal documents — privacy policies, compliance checklists, government agreement templates. India law expert: DPDP 2023, IT Act, Foreigners Act. Report to CEO Aryan.`,
+     autonomousTasks:["Review DPDP compliance gaps","Update privacy policy for new features","Draft government data access policy","Identify regulatory approval requirements"]},
+    {id:"u-content",e:"✍️",role:"Content",name:"Zara",proj:"u",reports_to:"u-cmo",
+     manages:[],
+     skills:["Trust","UX Copy","Safety","Multilingual"],
+     context:"Content Lead for UniSafeX — trust-building content for foreigners in India, app UX copy, safety guides, social content.",
+     sys:`You are Zara, Content Lead for UniSafeX. You report to CMO Sara. You write trust-building content for foreigners in India: app UX copy, safety guides, social content. Calm, professional, reassuring tone. Produce complete publish-ready content.`,
+     autonomousTasks:["Draft app onboarding copy","Update safety guide for new states","Create social trust-building posts","Write FAQ for foreign users"]},
+    {id:"u-ops",e:"⚙️",role:"COO",name:"Kiran",proj:"u",reports_to:"u-ceo",
+     manages:[],
+     skills:["GovOps","SOS System","Pilot","Scale"],
+     context:"COO handling UniSafeX operations: government onboarding, city pilots, SOS system operations, authority training.",
+     sys:`You are Kiran, COO of UniSafeX. You handle government onboarding, city pilots, SOS operations, authority training. Report to CEO Aryan. Produce complete SOPs, pilot playbooks, operational documents.`,
+     autonomousTasks:["Plan pilot city launch checklist","Draft police training outline","Review SOS response procedures","Identify government onboarding blockers"]}
+  ]
+};
+
+// ── STATE ──
+let curProj="k", curAgent=AGENTS.k[0], curView="team";
+let inputMode="team"; // direct, team, research, a2a
+let feed=[], tasks=[], reports=[], memory={k:{},u:{}};
+let agentStatuses={}, busy=false, autoMode=false, autoInterval=null;
+let rpPanel="reports", apiKey="", apiKeySet=false;
+
+try{
+  tasks=JSON.parse(localStorage.getItem("acc_t5")||"[]");
+  reports=JSON.parse(localStorage.getItem("acc_r5")||"[]");
+  memory=JSON.parse(localStorage.getItem("acc_m5")||'{"k":{},"u":{}}');
+}catch(e){tasks=[];reports=[];memory={k:{},u:{}};}
+
+Object.values(AGENTS).flat().forEach(a=>{agentStatuses[a.id]="idle";});
+
+// ── AUTH ──
+function login(){
+  if(document.getElementById("pwIn").value===PW){
+    document.getElementById("loginWrap").style.display="none";
+    document.getElementById("app").style.display="flex";
+    const k=sessionStorage.getItem("acc_k5");
+    if(k){apiKey=k;apiKeySet=true;curProvider=sessionStorage.getItem("acc_p5")||"groq";
+      curModel=sessionStorage.getItem("acc_m5k")||"llama-3.3-70b-versatile";
+      document.getElementById("provBadge").textContent=PROVIDERS[curProvider].name;}
+    else document.getElementById("keyModal").style.display="flex";
+    initApp();
+  }else{document.getElementById("pwErr").style.display="block";}
+}
+function logout(){
+  document.getElementById("loginWrap").style.display="flex";
+  document.getElementById("app").style.display="none";
+  if(autoInterval)clearInterval(autoInterval);
+  apiKey="";apiKeySet=false;sessionStorage.removeItem("acc_k5");
+}
+function saveKey(){
+  const k=document.getElementById("keyIn").value.trim();
+  if(k.length<8){alert("Please enter a valid API key.");return;}
+  apiKey=k;apiKeySet=true;curModel=document.getElementById("modelSel").value;
+  sessionStorage.setItem("acc_k5",k);sessionStorage.setItem("acc_p5",curProvider);
+  sessionStorage.setItem("acc_m5k",curModel);
+  document.getElementById("provBadge").textContent=PROVIDERS[curProvider].name;
+  document.getElementById("keyModal").style.display="none";
+}
+async function testConn(){
+  const k=document.getElementById("keyIn").value.trim();
+  const m=document.getElementById("modelSel").value;
+  const res=document.getElementById("testResult");
+  if(!k){res.style.display="block";res.style.background="rgba(239,68,68,.12)";res.style.color="#f87171";res.innerHTML="❌ Paste your API key first.";return;}
+  res.style.display="block";res.style.background=res.style.color="";res.innerHTML="⏳ Testing...";
+  try{
+    const tempKey=apiKey;const tempModel=curModel;
+    apiKey=k;curModel=m;
+    const reply=await callAI("You are a test assistant.","Say exactly: Connection successful!",null);
+    apiKey=tempKey;curModel=tempModel;
+    res.style.background="rgba(34,197,94,.12)";res.style.color="#22c55e";
+    res.innerHTML="✅ Connected! Response: "+reply.slice(0,60);
+  }catch(e){
+    res.style.background="rgba(239,68,68,.12)";res.style.color="#f87171";
+    res.innerHTML="❌ Failed: "+e.message+"<br><small>Check key is correct and copied in full.</small>";
+  }
+}
+
+// ── INIT ──
+function initApp(){switchProj(curProj,true);switchView("team");}
+function switchProj(pid,force){
+  if(pid===curProj&&!force)return;
+  curProj=pid;feed=[];
+  document.getElementById("pt-k").className="psw"+(pid==="k"?" pk":"");
+  document.getElementById("pt-u").className="psw"+(pid==="u"?" pu":"");
+  curAgent=AGENTS[pid][0];
+  renderAll();
+}
+function switchView(v){
+  curView=v;
+  document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));
+  document.getElementById("v"+v.charAt(0).toUpperCase()+v.slice(1)).classList.add("active");
+  document.querySelectorAll(".vsw").forEach(el=>el.classList.remove("active"));
+  document.getElementById("vsw-"+v).classList.add("active");
+  renderAll();
+}
+function renderAll(){
+  if(curView==="team"){buildSidebar();renderFeedHdr();renderFeed();renderQuickRow();renderRpanel();}
+  else if(curView==="board")renderBoard();
+  else if(curView==="analytics")renderAnalytics();
+}
+
+// ── SIDEBAR ──
+function buildSidebar(){
+  const p=PROJ[curProj];
+  let h=`<div class="tsb-proj">
+    <div class="tsb-pname ${curProj==="k"?"kc":"uc"}">${p.emoji} ${p.name}</div>
+    <div class="tsb-pdesc">${p.desc}</div>
+  </div>`;
+  const ags=AGENTS[curProj];
+  const ceo=ags.find(a=>a.id===p.ceo);
+  h+=`<div class="tsb-sec">Leadership</div>`;
+  if(ceo)h+=anodeHTML(ceo);
+  h+=`<div class="tsb-sec">Team</div>`;
+  ags.filter(a=>a.id!==p.ceo).forEach(a=>{h+=anodeHTML(a);});
+  document.getElementById("teamSb").innerHTML=h;
+}
+function anodeHTML(a){
+  const sel=curAgent&&curAgent.id===a.id;
+  const isU=curProj==="u";
+  const st=agentStatuses[a.id]||"idle";
+  const stLabels={idle:"● Idle",thinking:"◎ Thinking",researching:"🔍 Researching",working:"⟳ Working",reported:"✓ Reported",messaging:"↔ Messaging"};
+  return `<div class="anode ${sel?(isU?"sel u-s":"sel"):""}" id="an-${a.id}" onclick="selAgent('${a.id}')">
+    <div class="an-row">
+      <div class="an-em">${a.e}</div>
+      <div>
+        <div class="an-role">${a.role}</div>
+        <div class="an-name">${a.name}</div>
+      </div>
+    </div>
+    <div class="an-stat st-${st}">${stLabels[st]||"● Idle"}</div>
+  </div>`;
+}
+function selAgent(id){
+  curAgent=Object.values(AGENTS).flat().find(a=>a.id===id);
+  buildSidebar();renderFeedHdr();renderQuickRow();
+}
+
+// ── FEED HEADER ──
+function renderFeedHdr(){
+  if(!curAgent)return;
+  const reportsTo=curAgent.reports_to?Object.values(AGENTS).flat().find(a=>a.id===curAgent.reports_to):null;
+  const manages=(curAgent.manages||[]).map(id=>Object.values(AGENTS).flat().find(a=>a.id===id)?.name).filter(Boolean);
+  document.getElementById("feedHdr").innerHTML=`
+    <div class="fh-ico">${curAgent.e}</div>
+    <div>
+      <div class="fh-n">${curAgent.name} · ${curAgent.role}</div>
+      <div class="fh-t">${reportsTo?`Reports to: ${reportsTo.name}`:PROJ[curProj].name+" — Top of chain"}${manages.length?" · Manages: "+manages.join(", "):""}</div>
+      <div class="fh-skl">${curAgent.skills.map(s=>`<span class="skp">${s}</span>`).join('')}</div>
+    </div>
+    <div class="fh-r">
+      <button class="hbtn research" onclick="deepResearchAgent('${curAgent.id}')">🔍 Research</button>
+      <button class="hbtn primary" onclick="requestReport('${curAgent.id}')">📋 Report</button>
+      <button class="hbtn" onclick="clearFeed()">Clear</button>
+    </div>
+  `;
+}
+
+// ── MODE & QUICK BUTTONS ──
+function setMode(m){
+  inputMode=m;
+  document.querySelectorAll(".mtab").forEach(t=>t.className="mtab");
+  const btn=document.getElementById("mt-"+m);
+  if(m==="research")btn.className="mtab research-on";
+  else btn.className="mtab on";
+  const inp=document.getElementById("mainIn");
+  if(inp){
+    inp.className=m==="research"?"main-in research-mode":"main-in";
+    const placeholders={
+      direct:`Message ${curAgent?.name||"agent"} directly...`,
+      team:"Give the CEO a goal → whole team works...",
+      research:"Deep research topic (CEO assigns to team with web search)...",
+      a2a:"Format: @AgentName message (e.g. @Dev what's the app status?)"
+    };
+    inp.placeholder=placeholders[m]||"Type your message...";
+  }
+  const sb=document.getElementById("sendBtn");
+  if(sb){sb.className=m==="research"?"send-btn research-btn":"send-btn";sb.textContent=m==="research"?"🔍 Research ↗":"Send ↗";}
+  const hint=document.getElementById("inputHint");
+  if(hint){
+    const hints={
+      direct:"Talking directly to selected agent · Enter to send",
+      team:"CEO receives this → delegates to team → all 6 agents work → CEO reports back to you",
+      research:"CEO assigns deep research → each agent researches their area → synthesized report",
+      a2a:"Use @Name to message any agent directly (e.g. @Dev review Maya's campaign plan)"
+    };
+    hint.textContent=hints[m]||"";
+  }
+  document.getElementById("researchBadge").style.display=m==="research"?"inline-flex":"none";
+  renderQuickRow();
+}
+function renderQuickRow(){
+  if(!curAgent)return;
+  const quickSets={
+    direct:curAgent.quick||[
+      {l:"Status report",p:`Give me your ${curAgent.role} status report for ${PROJ[curProj].name}.`},
+      {l:"Autonomous tasks",p:`What ${curAgent.role} tasks are you working on autonomously right now?`},
+      {l:"What do you need?",p:`What do you need from other team members or the founder right now?`}
+    ],
+    team:[
+      {l:"🚀 Daily Standup",p:"__STANDUP__"},
+      {l:"📊 CEO Brief",p:"Give me a full executive briefing on "+PROJ[curProj].name+" — status, progress, risks, priorities."},
+      {l:"🎯 Set weekly goals",p:"Set and assign specific weekly goals to each team member for "+PROJ[curProj].name+"."},
+      {l:"⚠️ Risk review",p:"Identify and report on top 5 risks for "+PROJ[curProj].name+" right now."}
+    ],
+    research:[
+      {l:"🔍 Competitor research",p:"Deep research: analyze top competitors of "+PROJ[curProj].name+" — features, pricing, strengths, weaknesses, market share."},
+      {l:"📈 Market analysis",p:"Deep research: market size, trends, and opportunity for "+PROJ[curProj].name+" in India."},
+      {l:"👤 User research",p:"Deep research: who are the ideal users of "+PROJ[curProj].name+"? Pain points, needs, willingness to pay."},
+      {l:"💡 Industry trends",p:"Deep research: latest trends in "+PROJ[curProj].name+"'s industry — technology, regulations, consumer behavior."}
+    ],
+    a2a:[
+      {l:"@Dev status?",p:"@Dev What's the current development status and what are you working on this week?"},
+      {l:"@CMO review",p:"@"+(curProj==="k"?"Maya":"Sara")+" Review the latest marketing plan and give your honest assessment."},
+      {l:"@All standup",p:"@All Give me your quick standup update — what you did yesterday, what you're doing today, any blockers."},
+      {l:"Cross-team sync",p:"@CEO @CTO @CMO Sync on the product launch timeline — is everyone aligned?"}
+    ]
+  };
+  const items=quickSets[inputMode]||[];
+  document.getElementById("quickRow").innerHTML=items.map(q=>
+    `<button class="qc ${inputMode==="research"?"research":""}" onclick="quickSend(${JSON.stringify(q.p)})">${q.l}</button>`
+  ).join('');
+}
+
+// ── RENDER FEED ──
+function renderFeed(){
+  const c=document.getElementById("feed");if(!c)return;
+  if(!feed.length){
+    c.innerHTML=`<div class="welcome-feed">
+      <div class="wf-ico">🏢</div>
+      <div class="wf-title">Your Autonomous AI Team</div>
+      <div class="wf-sub">12 AI agents running for Kaamefy & UniSafeX. CEO delegates, team works, reports come to you. Choose a mode and give your team a goal.</div>
+      <div class="wf-cards">
+        <div class="wf-card" onclick="setMode('team');quickSend('__STANDUP__')">
+          <div class="wf-card-ico">☀️</div>
+          <div class="wf-card-title">Run Daily Standup</div>
+          <div class="wf-card-desc">All 6 agents report in, CEO summarizes</div>
+        </div>
+        <div class="wf-card" onclick="setMode('research');quickSend('Deep research: analyze top competitors of ${PROJ[curProj].name} — features, pricing, strengths, weaknesses.')">
+          <div class="wf-card-ico">🔍</div>
+          <div class="wf-card-title">Deep Research</div>
+          <div class="wf-card-desc">Team researches any topic, CEO reports</div>
+        </div>
+        <div class="wf-card" onclick="setMode('team');quickSend('Give me a full executive briefing on ${PROJ[curProj].name} — status, what each team member is doing, risks, and top 3 priorities.')">
+          <div class="wf-card-ico">📊</div>
+          <div class="wf-card-title">CEO Briefing</div>
+          <div class="wf-card-desc">Full executive status report</div>
+        </div>
+        <div class="wf-card" onclick="toggleAuto()">
+          <div class="wf-card-ico">🤖</div>
+          <div class="wf-card-title">Autonomous Mode</div>
+          <div class="wf-card-desc">Team works on its own, reports every 30min</div>
+        </div>
+      </div>
+    </div>`;
+    return;
+  }
+  c.innerHTML=feed.map(m=>feedMsgHTML(m)).join('');
+  c.scrollTop=c.scrollHeight;
+}
+
+function feedMsgHTML(m){
+  if(m.type==="sys")return`<div class="fm sys"><div class="bub bub-sys">${m.content}</div></div>`;
+  if(m.type==="user")return`<div class="fm user">
+    <div class="fav">YOU</div>
+    <div class="fbody">
+      <div class="fmeta"><span class="fwho">You</span><span class="ftime">${m.time}</span></div>
+      <div class="bub bub-user">${fmt(m.content)}</div>
+    </div>
+  </div>`;
+
+  const tagMap={delegation:`<span class="ftag tag-del ${curProj==="u"?"u":""}">DELEGATION</span>`,
+    report:`<span class="ftag tag-rep">REPORT</span>`,
+    a2a:`<span class="ftag tag-a2a">AGENT→AGENT</span>`,
+    research:`<span class="ftag tag-research">🔍 RESEARCH</span>`,
+    ceo:`<span class="ftag tag-ceo">CEO BRIEFING</span>`,
+    auto:`<span class="ftag tag-auto">AUTO</span>`};
+  const bubMap={delegation:"bub-del"+(curProj==="u"?" u":""),report:"bub-rep",a2a:"bub-a2a",
+    research:"bub-research",ceo:"bub-ceo",auto:"bub-auto",agent:"bub-agent"};
+
+  let bubContent="";
+  if(["delegation","a2a"].includes(m.type)){
+    bubContent=`<div class="bub-hdr">
+      <span class="bh-from">${m.fromEmoji||""} ${m.fromName}</span>
+      <span class="bh-arrow">→</span>
+      <span class="bh-to">${m.toEmoji||""} ${m.toName}</span>
+    </div>${fmt(m.content)}`;
+  } else if(m.type==="report"){
+    bubContent=`<div class="bub-hdr rep-hdr">
+      <span class="bh-from">${m.fromEmoji} ${m.fromName} (${m.fromRole})</span>
+      <span class="bh-arrow">→</span>
+      <span class="bh-to">${m.toName}</span>
+    </div>${fmt(m.content)}`;
+  } else if(m.type==="research"){
+    bubContent=`<div class="bub-hdr research-hdr">
+      <span class="bh-from">${m.fromEmoji} ${m.fromName}</span>
+      <span class="ftag tag-research" style="margin-left:4px">🔍 Research Report</span>
+    </div>${fmt(m.content)}
+    ${m.sources&&m.sources.length?`<div class="research-sources">
+      <div class="rs-title">RESEARCH QUERIES USED</div>
+      ${m.sources.map((s,i)=>`<div class="rs-item"><span class="rs-num">${i+1}.</span>${s}</div>`).join('')}
+    </div>`:""}`;
+  } else {
+    bubContent=fmt(m.content);
+  }
+
+  return `<div class="fm ${m.type||"agent"}">
+    <div class="fav">${m.agentEmoji||m.fromEmoji||"🤖"}</div>
+    <div class="fbody">
+      <div class="fmeta">
+        <span class="fwho">${m.agentName||m.fromName}</span>
+        ${tagMap[m.type]||""}
+        <span class="ftime">${m.time}</span>
+      </div>
+      <div class="bub ${bubMap[m.type]||"bub-agent"}">${bubContent}</div>
+    </div>
+  </div>`;
+}
+
+function addToFeed(msg){
+  feed.push({...msg,time:now()});
+  const c=document.getElementById("feed");
+  if(!c)return;
+  if(c.querySelector(".welcome-feed")){c.innerHTML="";}
+  const el=document.createElement("div");
+  el.innerHTML=feedMsgHTML(feed[feed.length-1]);
+  c.appendChild(el.firstElementChild);
+  c.scrollTop=c.scrollHeight;
+}
+function showTyping(emoji,name,label){
+  const c=document.getElementById("feed");if(!c)return;
+  hideTyping();
+  const el=document.createElement("div");
+  el.id="typingInd";el.className="typing-row";
+  el.innerHTML=`<div class="fav">${emoji}</div>
+    <div><div class="typing-label">${name} ${label||"is thinking..."}</div>
+    <div class="typing-bub"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  c.appendChild(el);c.scrollTop=c.scrollHeight;
+}
+function hideTyping(){const el=document.getElementById("typingInd");if(el)el.remove();}
+
+// ── SEND HANDLER ──
+function handleKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();handleSend();}}
+function autoR(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,110)+"px";}
+function quickSend(p){
+  if(p==="__STANDUP__"){runStandup();return;}
+  document.getElementById("mainIn").value=p;handleSend();
+}
+
+async function handleSend(){
+  if(busy)return;
+  const inp=document.getElementById("mainIn");
+  const txt=inp.value.trim();if(!txt)return;
+  if(!apiKeySet){document.getElementById("keyModal").style.display="flex";return;}
+  if(txt==="__STANDUP__"){inp.value="";runStandup();return;}
+  inp.value="";inp.style.height="auto";
+  addToFeed({type:"user",content:txt});
+  busy=true;document.getElementById("sendBtn").disabled=true;
+
+  try{
+    if(inputMode==="direct") await directChat(curAgent,txt);
+    else if(inputMode==="team") await teamWorkflow(txt);
+    else if(inputMode==="research") await deepResearch(txt);
+    else if(inputMode==="a2a") await agentToAgent(txt);
+  }catch(e){addToFeed({type:"sys",content:"⚠️ Error: "+e.message});}
+
+  busy=false;document.getElementById("sendBtn").disabled=false;
+  renderRpanel();
+}
+
+// ── MODE 1: DIRECT CHAT ──
+async function directChat(agent,msg){
+  setSt(agent.id,"thinking");showTyping(agent.e,agent.name);
+  try{
+    const memCtx=getMemory(agent.id);
+    const result=await callAI(agent.sys+(memCtx?"\n\nRELEVANT MEMORY:\n"+memCtx:""),msg);
+    hideTyping();setSt(agent.id,"reported");
+    addToFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name+"  ("+agent.role+")",content:result});
+    saveMemory(agent.id,"last_interaction",msg.slice(0,80)+" → "+result.slice(0,120));
+    logTask(agent,"Direct: "+msg.slice(0,60),result);
+  }catch(e){hideTyping();setSt(agent.id,"idle");addToFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,content:"⚠️ "+e.message});}
+}
+
+// ── MODE 2: FULL TEAM WORKFLOW ──
+async function teamWorkflow(goal){
+  const ceo=AGENTS[curProj].find(a=>a.id===PROJ[curProj].ceo);
+  const team=AGENTS[curProj].filter(a=>a.id!==PROJ[curProj].ceo);
+
+  addToFeed({type:"sys",content:`🏢 CEO ${ceo.name} received your goal. Analyzing and delegating to team...`});
+  setSt(ceo.id,"thinking");showTyping(ceo.e,ceo.name,"is planning delegation...");
+
+  // CEO creates delegation plan
+  let delPlan;
+  try{
+    delPlan=await callAI(ceo.sys,
+      `Founder's goal: "${goal}"
+Team members: ${team.map(a=>`${a.name} (${a.role})`).join(", ")}
+Create a specific delegation plan. Assign each team member a concrete task related to this goal. Be specific. Max 2-3 sentences per person.`);
+  }catch(e){delPlan=`Team, please work on: ${goal}. Each of you focus on your area.`;}
+  hideTyping();setSt(ceo.id,"done");
+  addToFeed({type:"delegation",fromName:ceo.name,fromEmoji:ceo.e,toName:"Team",toEmoji:"👥",content:delPlan});
+
+  // Team members work and report
+  const teamReports=[];
+  for(const agent of team){
+    setSt(agent.id,"working");showTyping(agent.e,agent.name,"is working on task...");
+    await sleep(200);
+    try{
+      const memCtx=getMemory(agent.id);
+      const work=await callAI(agent.sys+(memCtx?"\n\nMEMORY:\n"+memCtx:""),
+        `Goal assigned by CEO: "${goal}"
+Your specific role: ${agent.role} for ${PROJ[curProj].name}
+Produce a concise STATUS REPORT to the CEO:
+1. What you're specifically doing on this goal
+2. 2-3 key outputs/findings from your area  
+3. Any blockers or requests to other team members
+Max 120 words. Be specific and professional.`);
+      hideTyping();setSt(agent.id,"reported");
+      const reportsTo=agent.reports_to?AGENTS[curProj].find(a=>a.id===agent.reports_to):ceo;
+      addToFeed({type:"report",fromName:agent.name,fromEmoji:agent.e,fromRole:agent.role,
+        toName:reportsTo.name,content:work});
+      teamReports.push({name:agent.name,role:agent.role,emoji:agent.e,report:work});
+      saveReport(agent,goal,work);
+      saveMemory(agent.id,"last_task",goal.slice(0,60));
+    }catch(e){
+      hideTyping();setSt(agent.id,"idle");
+      addToFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,
+        content:"⚠️ "+e.message});
+    }
+    await sleep(150);
+  }
+
+  if(!teamReports.length){addToFeed({type:"sys",content:"⚠️ No team members responded. Check API connection."});return;}
+
+  // CEO synthesizes
+  addToFeed({type:"sys",content:`✅ All ${teamReports.length} team members reported. ${ceo.name} preparing executive briefing...`});
+  setSt(ceo.id,"thinking");showTyping(ceo.e,ceo.name,"is writing CEO briefing...");
+  try{
+    const summary=await callAI(ceo.sys,
+      `Founder's original goal: "${goal}"
+Team reports:
+${teamReports.map(r=>`${r.emoji} ${r.name} (${r.role}): ${r.report}`).join("\n\n")}
+
+Write a concise CEO BRIEFING for the founder. Format:
+📊 **Status:** (1 sentence overall)
+✅ **Done/In Progress:** (bullet points of key things team accomplished)
+⚠️ **Risks/Blockers:** (any issues or "None identified")
+🎯 **Next Actions:** (top 3 specific next steps)
+Keep it executive-level. Founder wants clarity, not detail.`);
+    hideTyping();setSt(ceo.id,"done");
+    addToFeed({type:"ceo",agentEmoji:ceo.e,agentName:ceo.name+" — CEO Briefing",content:summary});
+    logTask(ceo,"CEO Briefing: "+goal.slice(0,50),summary);
+    saveMemory(ceo.id,"last_briefing",goal.slice(0,60));
+  }catch(e){hideTyping();setSt(ceo.id,"idle");}
+}
+
+// ── MODE 3: DEEP RESEARCH ──
+async function deepResearch(topic){
+  const ceo=AGENTS[curProj].find(a=>a.id===PROJ[curProj].ceo);
+  const team=AGENTS[curProj].filter(a=>a.id!==PROJ[curProj].ceo);
+
+  addToFeed({type:"sys",content:`🔍 Deep Research Mode: "${topic}" — Each agent researches their area, CEO compiles comprehensive report...`});
+  const allResearch=[];
+
+  for(const agent of team){
+    setSt(agent.id,"researching");showTyping(agent.e,agent.name,"is researching...");
+    await sleep(200);
+    const queries=[];
+    try{
+      const resPrompt=`You are ${agent.name} (${agent.role}) at ${PROJ[curProj].name} (${PROJ[curProj].desc}).
+Research topic: "${topic}"
+Your job: Conduct a DEEP RESEARCH from your ${agent.role} perspective. 
+
+Imagine you searched the web for: ["${topic} ${agent.role.toLowerCase()} analysis", "${topic} ${PROJ[curProj].name} relevant data", "latest ${topic} trends 2024"]
+
+Now write a detailed research report from your ${agent.role} perspective. Include:
+- Specific findings, data points, statistics (use realistic estimates if needed)  
+- Competitive intelligence relevant to your area
+- Specific recommendations for ${PROJ[curProj].name}
+- What this means for your department specifically
+Be thorough and specific. 150-200 words.`;
+
+      queries.push(`"${topic}" ${agent.role} analysis`);
+      queries.push(`${topic} for ${PROJ[curProj].name}`);
+
+      const result=await callAI(agent.sys,resPrompt);
+      hideTyping();setSt(agent.id,"reported");
+      addToFeed({type:"research",fromEmoji:agent.e,fromName:agent.name+" ("+agent.role+")",
+        agentEmoji:agent.e,agentName:agent.name,
+        content:result,sources:queries});
+      allResearch.push({name:agent.name,role:agent.role,emoji:agent.e,research:result});
+      saveReport(agent,`Research: ${topic}`,result);
+    }catch(e){
+      hideTyping();setSt(agent.id,"idle");
+      addToFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,content:"⚠️ "+e.message});
+    }
+    await sleep(150);
+  }
+
+  if(!allResearch.length)return;
+
+  // CEO compiles master research report
+  addToFeed({type:"sys",content:`📋 Compiling master research report...`});
+  setSt(ceo.id,"thinking");showTyping(ceo.e,ceo.name,"compiling research...");
+  try{
+    const masterReport=await callAI(ceo.sys,
+      `Research topic: "${topic}"
+${PROJ[curProj].name} context: ${PROJ[curProj].desc}
+
+Team research reports:
+${allResearch.map(r=>`## ${r.emoji} ${r.name} (${r.role})\n${r.research}`).join("\n\n")}
+
+Compile a COMPREHENSIVE RESEARCH REPORT for the founder. Include:
+# Research: ${topic}
+## Executive Summary (3-4 sentences)
+## Key Findings (by area)
+## Opportunities for ${PROJ[curProj].name}
+## Threats/Risks
+## Recommended Actions (top 5 specific actions)
+## Conclusion
+
+Be comprehensive, specific, and actionable.`);
+    hideTyping();setSt(ceo.id,"done");
+    addToFeed({type:"ceo",agentEmoji:ceo.e,agentName:"📋 Master Research Report — "+ceo.name,content:masterReport});
+    logTask(ceo,"Research Report: "+topic.slice(0,50),masterReport);
+  }catch(e){hideTyping();setSt(ceo.id,"idle");}
+}
+
+// ── MODE 4: AGENT-TO-AGENT ──
+async function agentToAgent(msg){
+  // Parse @AgentName from message
+  const match=msg.match(/@([A-Za-z]+)/);
+  if(!match){
+    addToFeed({type:"sys",content:'Use @Name to message an agent. Example: "@Dev what is the app status?"'});
+    return;
+  }
+  const targetName=match[1].toLowerCase();
+  const allAgents=AGENTS[curProj];
+  let targetAgent;
+
+  if(targetName==="all"){
+    // Message all agents
+    addToFeed({type:"sys",content:`📢 Sending message to all ${allAgents.length} agents...`});
+    for(const agent of allAgents){
+      setSt(agent.id,"messaging");showTyping(agent.e,agent.name);
+      await sleep(100);
+      try{
+        const reply=await callAI(agent.sys,
+          `You received this message (you are ${agent.name}, ${agent.role}): "${msg.replace(/@\w+/g,"").trim()}"
+Respond briefly and professionally as ${agent.name} (${agent.role}). Max 80 words.`);
+        hideTyping();setSt(agent.id,"done");
+        addToFeed({type:"a2a",fromName:agent.name,fromEmoji:agent.e,
+          toName:"Everyone",toEmoji:"👥",
+          agentEmoji:agent.e,agentName:agent.name,content:reply});
+      }catch(e){hideTyping();setSt(agent.id,"idle");}
+      await sleep(100);
+    }
+    return;
+  }
+
+  targetAgent=allAgents.find(a=>
+    a.name.toLowerCase().includes(targetName)||
+    a.role.toLowerCase().includes(targetName)||
+    a.id.toLowerCase().includes(targetName)
+  );
+
+  if(!targetAgent){
+    const names=allAgents.map(a=>`${a.name} (${a.role})`).join(", ");
+    addToFeed({type:"sys",content:`Agent "${match[1]}" not found. Available: ${names}`});
+    return;
+  }
+
+  setSt(curAgent.id,"messaging");setSt(targetAgent.id,"messaging");
+  showTyping(targetAgent.e,targetAgent.name,"is responding...");
+
+  const cleanMsg=msg.replace(/@\w+/g,"").trim();
+  try{
+    const reply=await callAI(targetAgent.sys,
+      `${curAgent.name} (${curAgent.role}) is asking you: "${cleanMsg}"
+Respond as ${targetAgent.name} (${targetAgent.role}) at ${PROJ[curProj].name}. Be specific and professional. Max 150 words.`);
+    hideTyping();
+    setSt(curAgent.id,"done");setSt(targetAgent.id,"done");
+    addToFeed({type:"a2a",fromName:curAgent.name,fromEmoji:curAgent.e,
+      toName:targetAgent.name,toEmoji:targetAgent.e,
+      agentEmoji:targetAgent.e,agentName:targetAgent.name,content:reply});
+    logTask(targetAgent,"A2A: "+cleanMsg.slice(0,50),reply);
+  }catch(e){
+    hideTyping();setSt(curAgent.id,"idle");setSt(targetAgent.id,"idle");
+    addToFeed({type:"agent",agentEmoji:targetAgent.e,agentName:targetAgent.name,content:"⚠️ "+e.message});
+  }
+}
+
+// ── DEEP RESEARCH FOR SINGLE AGENT ──
+async function deepResearchAgent(agentId){
+  if(!apiKeySet){document.getElementById("keyModal").style.display="flex";return;}
+  const agent=Object.values(AGENTS).flat().find(a=>a.id===agentId);
+  if(!agent||busy)return;
+  const topic=prompt(`Deep research for ${agent.name} (${agent.role}).\n\nWhat should ${agent.name} research?`);
+  if(!topic)return;
+  busy=true;
+  addToFeed({type:"user",content:`🔍 Research request for ${agent.name}: ${topic}`});
+  setSt(agent.id,"researching");showTyping(agent.e,agent.name,"is researching deeply...");
+  try{
+    const result=await callAI(agent.sys,
+      `Deep research assignment: "${topic}"
+As ${agent.name} (${agent.role}) at ${PROJ[curProj].name}, conduct thorough research. Include:
+- Detailed findings with specific data points
+- Competitive intelligence from your perspective  
+- Specific recommendations for ${PROJ[curProj].name}
+- Action items for your department
+Simulate searching: ["${topic} analysis", "${topic} India market", "${topic} best practices 2024"]
+Be detailed and specific. 200-250 words.`);
+    hideTyping();setSt(agent.id,"reported");
+    addToFeed({type:"research",fromEmoji:agent.e,fromName:agent.name+" ("+agent.role+")",
+      agentEmoji:agent.e,agentName:agent.name,content:result,
+      sources:[`"${topic}" analysis`,`${topic} India market`,`${topic} best practices 2024`]});
+    saveReport(agent,"Research: "+topic,result);
+    logTask(agent,"Research: "+topic.slice(0,50),result);
+  }catch(e){hideTyping();setSt(agent.id,"idle");addToFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,content:"⚠️ "+e.message});}
+  busy=false;renderRpanel();
+}
+
+// ── REQUEST REPORT ──
+async function requestReport(agentId){
+  if(!apiKeySet){document.getElementById("keyModal").style.display="flex";return;}
+  const agent=Object.values(AGENTS).flat().find(a=>a.id===agentId);
+  if(!agent||busy)return;
+  busy=true;
+  addToFeed({type:"user",content:`📋 Requesting status report from ${agent.name} (${agent.role})`});
+  setSt(agent.id,"thinking");showTyping(agent.e,agent.name);
+  try{
+    const memCtx=getMemory(agent.id);
+    const result=await callAI(agent.sys+(memCtx?"\n\nMEMORY:\n"+memCtx:""),
+      `Provide your status report to the founder for ${PROJ[curProj].name}:
+✅ Done this week: (specific accomplishments)
+🔨 Currently working on: (active tasks)
+📊 Key metrics/outputs: (numbers or specific deliverables)
+🚧 Blockers: (issues or "None")
+📤 Needs from team: (requests to others)
+🎯 Priority next 3 days: (specific plans)
+Be specific and professional. Use real details from your ${agent.role} perspective.`);
+    hideTyping();setSt(agent.id,"reported");
+    const reportsTo=agent.reports_to?AGENTS[curProj].find(a=>a.id===agent.reports_to):null;
+    addToFeed({type:"report",fromName:agent.name,fromEmoji:agent.e,fromRole:agent.role,
+      toName:reportsTo?reportsTo.name:"You",agentEmoji:agent.e,agentName:agent.name,content:result});
+    saveReport(agent,"Status Report",result);
+  }catch(e){hideTyping();setSt(agent.id,"idle");addToFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,content:"⚠️ "+e.message});}
+  busy=false;renderRpanel();
+}
+
+// ── STANDUP ──
+async function runStandup(){
+  if(!apiKeySet){document.getElementById("keyModal").style.display="flex";return;}
+  if(busy)return;
+  busy=true;document.getElementById("sendBtn").disabled=true;
+  const ags=AGENTS[curProj];
+  addToFeed({type:"sys",content:`☀️ Daily Standup — ${PROJ[curProj].name} — collecting reports from all ${ags.length} agents...`});
+  const standupReports=[];
+
+  for(const agent of ags){
+    setSt(agent.id,"working");showTyping(agent.e,agent.name);
+    await sleep(150);
+    try{
+      const result=await callAI(agent.sys,
+        `Daily standup for ${PROJ[curProj].name}. Respond in exactly this format:
+✅ Yesterday: (1 specific thing done)
+🔨 Today: (1 specific thing working on)
+🚧 Blockers: (one issue or "None")
+📤 Need: (request to team or "Nothing")
+One sentence each. Be specific to your ${agent.role} role.`);
+      hideTyping();setSt(agent.id,"reported");
+      addToFeed({type:"report",fromName:agent.name,fromEmoji:agent.e,fromRole:agent.role,
+        toName:"Standup",agentEmoji:agent.e,agentName:agent.name,content:result});
+      standupReports.push({name:agent.name,role:agent.role,emoji:agent.e,report:result});
+      saveReport(agent,"Standup",result);
+    }catch(e){hideTyping();setSt(agent.id,"idle");}
+    await sleep(100);
+  }
+
+  // CEO summary
+  const ceo=ags.find(a=>a.id===PROJ[curProj].ceo);
+  if(ceo&&standupReports.length>=2){
+    setSt(ceo.id,"thinking");showTyping(ceo.e,ceo.name,"writing standup summary...");
+    try{
+      const s=await callAI(ceo.sys,
+        `Team standup reports:
+${standupReports.map(r=>`${r.emoji} ${r.name}: ${r.report}`).join("\n")}
+
+As CEO, write a 3-line standup summary:
+🟢 Team momentum: (what's going well today)
+🔴 Attention needed: (blockers or risks)
+🎯 Today's #1 focus: (most important thing for the team)`);
+      hideTyping();setSt(ceo.id,"done");
+      addToFeed({type:"ceo",agentEmoji:ceo.e,agentName:ceo.name+" — Standup Summary",content:s});
+    }catch(e){hideTyping();setSt(ceo.id,"idle");}
+  }
+  busy=false;document.getElementById("sendBtn").disabled=false;renderRpanel();saveData();
+}
+
+// ── AUTONOMOUS MODE ──
+function toggleAuto(){
+  autoMode=!autoMode;
+  const btn=document.getElementById("autoToggle");
+  btn.className="auto-toggle"+(autoMode?" on":"");
+  btn.innerHTML=`<span class="toggle-dot"></span> Auto Mode ${autoMode?"ON":"OFF"}`;
+  if(autoMode){
+    addToFeed({type:"sys",content:"🤖 Autonomous Mode ON — Your team will work independently and report every 30 minutes. Each agent will pick tasks from their autonomous task list and report back."});
+    runAutonomousCycle();
+    autoInterval=setInterval(runAutonomousCycle,30*60*1000); // every 30 min
+  } else {
+    if(autoInterval)clearInterval(autoInterval);
+    addToFeed({type:"sys",content:"🤖 Autonomous Mode OFF — Team paused."});
+  }
+}
+
+async function runAutonomousCycle(){
+  if(!apiKeySet||busy)return;
+  const ags=AGENTS[curProj];
+  addToFeed({type:"sys",content:`🤖 Autonomous cycle — ${PROJ[curProj].name} team working independently...`});
+  const autoReports=[];
+
+  for(const agent of ags){
+    if(agent.id===PROJ[curProj].ceo)continue;
+    const tasks=agent.autonomousTasks||[];
+    if(!tasks.length)continue;
+    const task=tasks[Math.floor(Math.random()*tasks.length)];
+    setSt(agent.id,"working");
+    await sleep(200);
+    try{
+      const memCtx=getMemory(agent.id);
+      const result=await callAI(agent.sys+(memCtx?"\n\nMEMORY:\n"+memCtx:""),
+        `You are working autonomously. Complete this task for ${PROJ[curProj].name}: "${task}"
+Produce a specific output. Then give a brief status update (2-3 sentences) on what you completed.`);
+      setSt(agent.id,"reported");
+      addToFeed({type:"auto",agentEmoji:agent.e,agentName:agent.name+" (Auto)",
+        fromEmoji:agent.e,fromName:agent.name,content:`**Autonomous Task:** ${task}\n\n${result}`});
+      autoReports.push({name:agent.name,role:agent.role,report:result});
+      saveReport(agent,"Auto: "+task,result);
+      saveMemory(agent.id,"autonomous_task",task);
+      logTask(agent,"Auto: "+task.slice(0,50),result);
+    }catch(e){setSt(agent.id,"idle");}
+    await sleep(100);
+  }
+
+  // CEO autonomous review
+  const ceo=ags.find(a=>a.id===PROJ[curProj].ceo);
+  if(ceo&&autoReports.length){
+    try{
+      const review=await callAI(ceo.sys,
+        `Auto mode report from team:
+${autoReports.map(r=>`${r.name}: ${r.report.slice(0,100)}`).join("\n")}
+Brief CEO autonomous review: what the team accomplished, any concerns, next autonomous focus. 2-3 sentences.`);
+      setSt(ceo.id,"done");
+      addToFeed({type:"ceo",agentEmoji:ceo.e,agentName:"Auto CEO Review",content:review});
+    }catch(e){setSt(ceo.id,"idle");}
+  }
+  saveData();renderRpanel();
+}
+
+// ── RIGHT PANEL ──
+function rpTab(t){
+  rpPanel=t;
+  document.querySelectorAll(".rpt").forEach(el=>el.classList.remove("on"));
+  document.getElementById("rpt-"+t).classList.add("on");
+  renderRpanel();
+}
+function renderRpanel(){
+  const b=document.getElementById("rpBody");if(!b)return;
+  if(rpPanel==="reports"){
+    const reps=[...reports].filter(r=>r.proj===curProj).reverse().slice(0,10);
+    b.innerHTML=`<button class="standup-btn" ${busy?"disabled":""} onclick="runStandup()">☀️ Run Daily Standup</button>
+      ${reps.length?reps.map(r=>`<div class="rep-card">
+        <div class="rc-top"><div class="rc-em">${r.agentEmoji}</div>
+          <div><div class="rc-n">${r.agentName}</div><div class="rc-r">${r.agentRole}</div></div>
+          <span class="rc-proj ${r.proj}">${PROJ[r.proj].name}</span>
+        </div>
+        <div class="rc-body">${r.content.slice(0,100)}...</div>
+        <div class="rc-time">${r.time}</div>
+      </div>`).join(''):`<div class="empty-rp">No reports yet.<br>Run a standup or request reports from agents.</div>`}`;
+  }else if(rpPanel==="memory"){
+    const projMem=memory[curProj]||{};
+    const entries=Object.entries(projMem);
+    b.innerHTML=`<div class="rp-sec">Agent Memory — ${PROJ[curProj].name}</div>
+      ${entries.length?entries.map(([key,val])=>`<div class="mem-item">
+        <span class="mi-proj ${curProj}">${PROJ[curProj].name}</span>
+        <div class="mi-key">${key}</div>
+        <div class="mi-val">${String(val).slice(0,100)}</div>
+      </div>`).join(''):`<div class="empty-rp">No memory yet.<br>Agents remember past interactions, tasks, and decisions here.</div>`}
+      <button style="width:100%;padding:7px;border-radius:8px;border:1px solid var(--b2);background:transparent;color:var(--err);font-family:DM Sans;font-size:11px;cursor:pointer;margin-top:8px" onclick="clearMemory()">🗑 Clear Memory</button>`;
+  }else if(rpPanel==="schedule"){
+    b.innerHTML=`<div class="rp-sec">Scheduled Tasks</div>
+      <div class="sched-item">
+        <div class="si-ico">☀️</div>
+        <div class="si-inf"><div class="si-t">Daily Standup</div><div class="si-next">Auto mode: every 30 min</div></div>
+        <button class="si-tog ${autoMode?"on":""}" onclick="toggleAuto()"></button>
+      </div>
+      <div class="sched-item">
+        <div class="si-ico">📊</div>
+        <div class="si-inf"><div class="si-t">CEO Briefing</div><div class="si-next">Run manually or auto</div></div>
+        <button class="si-tog" onclick="setMode('team');quickSend('Give me a full CEO briefing.')"></button>
+      </div>
+      <div class="sched-item">
+        <div class="si-ico">🤖</div>
+        <div class="si-inf"><div class="si-t">Autonomous Mode</div><div class="si-next">${autoMode?"Running — every 30 min":"Off — click to start"}</div></div>
+        <button class="si-tog ${autoMode?"on":""}" onclick="toggleAuto()"></button>
+      </div>
+      <div class="rp-sec" style="margin-top:14px">Quick Actions</div>
+      <button class="standup-btn" onclick="setMode('research');document.getElementById('mainIn').focus()">🔍 Start Deep Research</button>
+      <button style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--b2);background:transparent;color:var(--mut2);font-family:DM Sans;font-size:11px;cursor:pointer;margin-bottom:6px" onclick="setMode('a2a');document.getElementById('mainIn').focus()">↔ Agent Chat Mode</button>`;
+  }
+}
+
+// ── TASK BOARD ──
+function renderBoard(){
+  const ags=AGENTS[curProj];
+  const cols=[{id:"pending",l:"Pending",c:"#f59e0b"},{id:"working",l:"Working",c:"#818cf8"},{id:"done",l:"Done",c:"#22c55e"}];
+  let html=`<div class="add-col">
+    <div class="ac-t">Assign Direct Task</div>
+    <div class="ac-l">Agent</div>
+    <select class="ac-sel" id="acAg">${ags.map(a=>`<option value="${a.id}">${a.e} ${a.name} — ${a.role}</option>`).join('')}</select>
+    <div class="ac-l" style="margin-top:6px">Task</div>
+    <textarea class="ac-ta" id="acTa" placeholder="What should this agent produce?"></textarea>
+    <button class="ac-run" id="acBtn" onclick="assignTask(false)">Run Task ↗</button>
+    <button class="ac-research" onclick="assignTask(true)" style="margin-top:4px">🔍 Research Task</button>
+  </div>`;
+  cols.forEach(col=>{
+    const ct=tasks.filter(t=>t.proj===curProj&&t.status===col.id);
+    html+=`<div class="board-col">
+      <div class="bc-h"><div class="bc-t"><div class="bc-dot" style="background:${col.c}"></div>${col.l}</div><span class="bc-cnt">${ct.length}</span></div>
+      <div class="bc-b">${ct.length?ct.map(t=>`<div class="tcard">
+        <div class="tc-t"><span class="tc-proj ${t.proj}">${PROJ[t.proj].name}</span>
+          <span class="tc-ag ${t.status==="working"?"pulse":""}">${t.agentEmoji} ${t.agentName}</span>
+          ${t.isResearch?`<span class="tc-type research">Research</span>`:""}
+        </div>
+        <div class="tc-title">${t.title}</div>
+        ${t.result?`<div class="tc-prev">${t.result.slice(0,140)}...</div>`:""}
+        <div class="tc-foot"><span class="tc-time">${t.time}</span>
+          <div class="tc-btns">
+            ${t.status==="pending"?`<button class="tcb blue" onclick="runTask('${t.id}')">Run</button>`:""}
+            ${t.result?`<button class="tcb blue" onclick="viewResult('${t.id}')">View</button>`:""}
+            ${t.result?`<button class="tcb" onclick="exportTask('${t.id}')">Export</button>`:""}
+            <button class="tcb red" onclick="delTask('${t.id}')">✕</button>
+          </div>
+        </div>
+      </div>`).join(''):`<div style="text-align:center;padding:14px;color:var(--mut);font-size:11px">Empty</div>`}
+      </div>
+    </div>`;
+  });
+  document.getElementById("vBoard").innerHTML=`<div class="board-outer">${html}</div>`;
+}
+
+async function assignTask(isResearch){
+  if(!apiKeySet){document.getElementById("keyModal").style.display="flex";return;}
+  const agId=document.getElementById("acAg").value;
+  const txt=document.getElementById("acTa").value.trim();
+  if(!txt){alert("Please describe the task.");return;}
+  const agent=AGENTS[curProj].find(a=>a.id===agId);
+  const btn=document.getElementById(isResearch?"acResearch":"acBtn");
+  if(btn){btn.disabled=true;btn.textContent="Working...";}
+  const t={id:"t"+Date.now(),proj:curProj,agentId:agent.id,agentName:agent.name,
+    agentRole:agent.role,agentEmoji:agent.e,title:txt.slice(0,65),fullPrompt:txt,
+    status:"working",result:"",time:now(),isResearch};
+  tasks.push(t);saveData();renderBoard();
+  try{
+    const prompt=isResearch
+      ?`Deep research: "${txt}". Simulate searching the web. Provide detailed findings with data, competitive intelligence, and specific recommendations for ${PROJ[curProj].name}. Be thorough.`
+      :`TASK: ${txt}\n\nProduce a COMPLETE, detailed, ready-to-use deliverable. Use tables, headers, structured sections.`;
+    t.result=await callAI(agent.sys,prompt);
+    t.status="done";
+  }catch(e){t.result="Error: "+e.message;t.status="pending";}
+  saveData();if(btn){btn.disabled=false;btn.textContent=isResearch?"🔍 Research Task":"Run Task ↗";}renderBoard();
+}
+async function runTask(id){
+  if(!apiKeySet)return;
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const agent=Object.values(AGENTS).flat().find(a=>a.id===t.agentId);if(!agent)return;
+  t.status="working";saveData();renderBoard();
+  try{t.result=await callAI(agent.sys,`TASK: ${t.fullPrompt||t.title}\n\nProduce a COMPLETE deliverable.`);t.status="done";}
+  catch(e){t.result="Error: "+e.message;t.status="pending";}
+  saveData();renderBoard();
+}
+function viewResult(id){
+  const t=tasks.find(x=>x.id===id);if(!t||!t.result)return;
+  const w=window.open("","_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${t.agentName}</title>
+    <style>body{font-family:system-ui;max-width:820px;margin:40px auto;padding:0 24px;
+      background:#07070d;color:#eeeef8;line-height:1.75;}
+      h1{font-size:18px;color:#a78bfa;margin-bottom:4px;}
+      .meta{font-size:12px;color:#606080;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:12px;margin-bottom:24px;}
+      h2{font-size:16px;font-weight:600;margin:14px 0 5px;}h3{font-size:14px;font-weight:600;margin:10px 0 4px;}
+      pre{background:#161624;border-radius:8px;padding:14px;overflow-x:auto;white-space:pre-wrap;font-size:12px;}
+      table{width:100%;border-collapse:collapse;margin:10px 0;}
+      th{background:#1d1d2e;padding:7px 10px;border:1px solid rgba(255,255,255,.08);}
+      td{padding:7px 10px;border:1px solid rgba(255,255,255,.05);}
+      li{margin-bottom:4px;}
+      .exp{position:fixed;top:16px;right:16px;background:#7c3aed;color:#fff;border:none;
+        padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;}
+    </style></head><body>
+    <button class="exp" onclick="const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([document.querySelector('pre.raw').textContent],{type:'text/plain'}));a.download='${t.agentName}-output.txt';a.click()">📥 Export</button>
+    <h1>${t.agentEmoji} ${t.agentName} (${t.agentRole}) ${t.isResearch?"— Research":""}</h1>
+    <div class="meta">${t.title} · ${t.time} · ${PROJ[t.proj].name}</div>
+    <div>${fmtHTML(t.result)}</div>
+    <pre class="raw" style="display:none">${t.result}</pre>
+    </body></html>`);
+}
+function exportTask(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([`${t.agentName} (${t.agentRole}) — ${PROJ[t.proj].name}\n${t.title}\n${t.time}\n${"=".repeat(50)}\n\n${t.result}`],{type:"text/plain"}));
+  a.download=`${t.agentName}-${t.isResearch?"research":"output"}.txt`;a.click();
+}
+function delTask(id){tasks=tasks.filter(t=>t.id!==id);saveData();renderBoard();}
+
+// ── ANALYTICS ──
+function renderAnalytics(){
+  const all=tasks;const allAgs=Object.values(AGENTS).flat();
+  const done=all.filter(t=>t.status==="done").length;
+  const kT=all.filter(t=>t.proj==="k").length;const uT=all.filter(t=>t.proj==="u").length;
+  const researchT=all.filter(t=>t.isResearch).length;
+  const totalReps=reports.length;
+
+  const agRows=allAgs.map(a=>{
+    const cnt=all.filter(t=>t.agentId===a.id).length;
+    const rc=reports.filter(r=>r.agentId===a.id).length;
+    const mx=Math.max(...allAgs.map(x=>all.filter(t=>t.agentId===x.id).length),1);
+    return `<div class="perf-row">
+      <div class="pr-em">${a.e}</div>
+      <div class="pr-inf">
+        <div class="pr-n">${a.name} <span style="font-size:10px;color:var(--mut);font-weight:400">${a.role} · ${PROJ[a.proj].name}</span></div>
+        <div class="pr-bw"><div class="pr-bar"><div class="pr-fill" style="width:${Math.round(cnt/mx*100)}%;background:${PROJ[a.proj].bar}"></div></div>
+        <div class="pr-cnt">${cnt} tasks · ${rc} reports</div></div>
+      </div>
+      <span class="pr-st ${cnt>0?"ps-a":"ps-i"}">${cnt>0?"Active":"Idle"}</span>
+    </div>`;
+  }).join('');
+
+  const recent=[...all].reverse().slice(0,8);
+  document.getElementById("vAnalytics").innerHTML=`<div class="an-wrap">
+    <div class="an-kpis">
+      <div class="kpi"><div class="kpi-l">Total Tasks</div><div class="kpi-v" style="color:var(--info)">${all.length}</div><div class="kpi-s">All agents</div></div>
+      <div class="kpi"><div class="kpi-l">Completed</div><div class="kpi-v" style="color:var(--ok)">${done}</div><div class="kpi-s">${all.length?Math.round(done/all.length*100):0}%</div></div>
+      <div class="kpi"><div class="kpi-l">Research Tasks</div><div class="kpi-v" style="color:var(--research)">${researchT}</div><div class="kpi-s">Deep research</div></div>
+      <div class="kpi"><div class="kpi-l">Reports Filed</div><div class="kpi-v" style="color:var(--ok)">${totalReps}</div><div class="kpi-s">All agents</div></div>
+      <div class="kpi"><div class="kpi-l">Auto Mode</div><div class="kpi-v" style="color:${autoMode?"var(--ok)":"var(--mut)"}">${autoMode?"ON":"OFF"}</div><div class="kpi-s">${autoMode?"Running":"Paused"}</div></div>
+    </div>
+    <div class="an-row">
+      <div class="an-card">
+        <div class="an-t">All 12 Agents — Performance</div>
+        ${agRows||'<div style="color:var(--mut);font-size:11px">Assign tasks to see data.</div>'}
+      </div>
+      <div class="an-card">
+        <div class="an-t">Recent Activity</div>
+        ${recent.length?recent.map(t=>`<div class="tl-item">
+          <div class="tl-dot" style="background:${t.status==="done"?"var(--ok)":t.status==="working"?"var(--info)":"var(--warn)"}"></div>
+          <div><div class="tl-m">${t.agentEmoji} ${t.agentName}${t.isResearch?" 🔍":""} — ${t.title}</div>
+          <div class="tl-s">${PROJ[t.proj].name} · ${t.status} · ${t.time}</div></div>
+        </div>`).join(''):'<div style="color:var(--mut);font-size:11px">No activity yet.</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── MEMORY ──
+function getMemory(agentId){
+  const m=memory[curProj]||{};
+  const agentMem=Object.entries(m).filter(([k])=>k.startsWith(agentId)).map(([k,v])=>`${k.replace(agentId+"_","")}: ${v}`).join("\n");
+  return agentMem;
+}
+function saveMemory(agentId,key,value){
+  if(!memory[curProj])memory[curProj]={};
+  memory[curProj][agentId+"_"+key]=String(value).slice(0,200);
+  localStorage.setItem("acc_m5",JSON.stringify(memory));
+}
+function clearMemory(){memory[curProj]={};localStorage.setItem("acc_m5",JSON.stringify(memory));renderRpanel();}
+
+// ── HELPERS ──
+function setSt(id,st){
+  agentStatuses[id]=st;
+  const el=document.getElementById("an-"+id);
+  if(!el)return;
+  const span=el.querySelector(".an-stat");
+  if(!span)return;
+  const labels={idle:"● Idle",thinking:"◎ Thinking",researching:"🔍 Researching",working:"⟳ Working",reported:"✓ Reported",messaging:"↔ Messaging"};
+  span.className="an-stat st-"+st;
+  span.textContent=labels[st]||"● Idle";
+}
+function clearFeed(){feed=[];Object.values(AGENTS).flat().forEach(a=>setSt(a.id,"idle"));renderFeed();}
+function saveReport(agent,goal,content){
+  reports.push({id:"r"+Date.now()+Math.random(),proj:curProj,agentId:agent.id,
+    agentName:agent.name,agentRole:agent.role,agentEmoji:agent.e,
+    content,goal,time:now()});
+  saveData();
+}
+function logTask(agent,title,result){
+  tasks.push({id:"t"+Date.now(),proj:curProj,agentId:agent.id,agentName:agent.name,
+    agentRole:agent.role,agentEmoji:agent.e,title:title.slice(0,65),result,
+    status:"done",time:now()});
+  saveData();
+}
+function saveData(){
+  try{localStorage.setItem("acc_t5",JSON.stringify(tasks.slice(-200)));
+    localStorage.setItem("acc_r5",JSON.stringify(reports.slice(-100)));
+  }catch(e){}
+}
+function exportAll(){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({tasks,reports,memory,exported:new Date().toISOString()},null,2)],{type:"application/json"}));
+  a.download="ai-centre-v4-backup.json";a.click();
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function now(){return new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});}
+
+function fmt(t){
+  t=(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  t=t.replace(/```[\w]*\n?([\s\S]*?)```/g,"<pre><code>$1</code></pre>");
+  t=t.replace(/`([^`\n]+)`/g,"<code>$1</code>");
+  t=t.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+  t=t.replace(/^### (.+)$/gm,"<h3>$1</h3>");t=t.replace(/^## (.+)$/gm,"<h2>$1</h2>");t=t.replace(/^# (.+)$/gm,"<h2>$1</h2>");
+  t=t.replace(/^\|(.+)\|$/gm,r=>"<tr>"+r.split("|").filter(Boolean).map(c=>`<td>${c.trim()}</td>`).join("")+"</tr>");
+  t=t.replace(/(<tr>[\s\S]*?<\/tr>\n?)+/g,m=>`<table>${m}</table>`);
+  t=t.replace(/^[\*\-] (.+)$/gm,"<li>$1</li>");t=t.replace(/^\d+\. (.+)$/gm,"<li>$1</li>");
+  t=t.replace(/\n\n+/g,"<br><br>").replace(/\n/g,"<br>");return t;
+}
+function fmtHTML(t){
+  t=(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  t=t.replace(/```[\w]*\n?([\s\S]*?)```/g,"<pre>$1</pre>");
+  t=t.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+  t=t.replace(/^### (.+)$/gm,"<h3>$1</h3>");t=t.replace(/^## (.+)$/gm,"<h2>$1</h2>");
+  t=t.replace(/^[\*\-] (.+)$/gm,"<li>$1</li>");
+  t=t.replace(/\n\n+/g,"<br><br>").replace(/\n/g,"<br>");return t;
+}
+
+// ── API ──
+async function callAI(systemPrompt,singleMsg,messages){
+  const prov=PROVIDERS[curProvider];
+  let msgs;
+  if(messages&&messages.length>0){msgs=messages.map(m=>({role:m.role,content:m.content||"(empty)"}));}
+  else{msgs=[{role:"user",content:singleMsg||"Please respond."}];}
+  msgs=msgs.filter(m=>m.content&&m.content.trim());
+  if(!msgs.length)msgs=[{role:"user",content:"Please provide a response."}];
+  const sys=(systemPrompt||"You are a helpful AI assistant.").slice(0,3000);
+
+  if(prov.format==="openai"){
+    const headers={"Content-Type":"application/json","Authorization":`Bearer ${apiKey}`};
+    if(curProvider==="openrouter"){headers["HTTP-Referer"]="https://ai-command-centre.app";headers["X-Title"]="AI Command Centre v4";}
+    let res;
+    try{res=await fetch(prov.url,{method:"POST",headers,
+      body:JSON.stringify({model:curModel,messages:[{role:"system",content:sys},...msgs],max_tokens:900,temperature:0.72})});}
+    catch(e){throw new Error("Network error: "+e.message+". Make sure file is hosted (not file://)");}
+    const text=await res.text();
+    let d;try{d=JSON.parse(text);}catch(e){throw new Error("Invalid API response: "+text.slice(0,100));}
+    if(!res.ok){throw new Error("API "+res.status+": "+(d?.error?.message||text.slice(0,150)));}
+    if(d.error)throw new Error(d.error.message);
+    return d.choices?.[0]?.message?.content||"No response received.";
+  }
+  if(prov.format==="gemini"){
+    const history=msgs.slice(0,-1).map(m=>({role:m.role==="user"?"user":"model",parts:[{text:m.content}]}));
+    const last=msgs.slice(-1)[0].content;
+    let res;
+    try{res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${curModel}:generateContent?key=${apiKey}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({system_instruction:{parts:[{text:sys}]},
+         contents:[...history,{role:"user",parts:[{text:last}]}],
+         generationConfig:{maxOutputTokens:900,temperature:0.72}})});}
+    catch(e){throw new Error("Gemini network error. Must be hosted online: "+e.message);}
+    const d=await res.json();
+    if(d.error)throw new Error("Gemini: "+d.error.message);
+    return d.candidates?.[0]?.content?.parts?.[0]?.text||"No response.";
+  }
+  throw new Error("Unknown provider: "+curProvider);
+}
+
+window.onload=()=>document.getElementById("pwIn").focus();
+</script>
+</body>
+</html>
