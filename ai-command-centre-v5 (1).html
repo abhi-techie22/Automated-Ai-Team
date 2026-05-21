@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI_COMMAND_CENTRE_v5 // CLASSIFIED</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;--bg2:#020509;--bg3:#040c0e;
+  --panel:#030d0f;--panel2:#041218;--panel3:#05181e;
+  --b1:rgba(0,255,65,0.08);--b2:rgba(0,255,65,0.15);--b3:rgba(0,255,65,0.28);
+  --g:#00ff41;--g2:#00cc33;--g3:#00ff9d;--g4:rgba(0,255,65,0.6);
+  --cyan:#00d4ff;--cyan2:rgba(0,212,255,0.15);
+  --amber:#ffb300;--amber2:rgba(255,179,0,0.12);
+  --red:#ff2244;--red2:rgba(255,34,68,0.12);
+  --purple:#b300ff;--purple2:rgba(179,0,255,0.12);
+  --mut:#1a4a2a;--mut2:#2a6a3a;--mut3:#3a8a4a;
+  --txt:#00ff41;--txt2:#ccffcc;--txt3:#99ffaa;
+  --mono:'JetBrains Mono',monospace;
+  --orb:'Orbitron',monospace;
+  --tech:'Share Tech Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--mono);background:var(--bg);color:var(--txt);font-size:12px;
+  cursor:default;}
+
+/* MATRIX RAIN CANVAS */
+#matrixCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.04;pointer-events:none;}
+
+/* SCAN LINE EFFECT */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(
+  0deg,transparent,transparent 2px,rgba(0,255,65,0.01) 2px,rgba(0,255,65,0.01) 4px);
+  z-index:1;pointer-events:none;animation:scanlines 8s linear infinite;}
+@keyframes scanlines{0%{background-position:0 0;}100%{background-position:0 100vh;}}
+
+/* GLITCH ANIMATION */
+@keyframes glitch{
+  0%,94%,100%{transform:translate(0);filter:none;}
+  95%{transform:translate(-2px,1px);filter:hue-rotate(90deg);}
+  97%{transform:translate(2px,-1px);filter:hue-rotate(-90deg);}
+}
+@keyframes flicker{0%,98%{opacity:1;}99%{opacity:.85;}100%{opacity:1;}}
+@keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 5px var(--g),0 0 10px rgba(0,255,65,.3);}
+  50%{box-shadow:0 0 15px var(--g),0 0 30px rgba(0,255,65,.5),0 0 60px rgba(0,255,65,.2);}}
+@keyframes typing{from{width:0;}to{width:100%;}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+@keyframes dataStream{0%{background-position:0 0;}100%{background-position:0 100%;}}
+@keyframes borderPulse{0%,100%{border-color:var(--b2);}50%{border-color:var(--b3);}}
+
+/* MAIN LAYOUT */
+#app{display:none;height:100vh;flex-direction:column;position:relative;z-index:2;}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:48px;display:flex;align-items:center;padding:0 16px;gap:10px;
+  background:var(--panel);
+  border-bottom:1px solid var(--b3);
+  position:relative;flex-shrink:0;z-index:10;
+  box-shadow:0 2px 20px rgba(0,255,65,.1);
+}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);
+  animation:dataStream 3s linear infinite;}
+.tb-logo{
+  font-family:var(--orb);font-size:13px;font-weight:900;letter-spacing:.12em;
+  color:var(--g);text-shadow:0 0 10px var(--g),0 0 20px rgba(0,255,65,.5);
+  animation:flicker 4s infinite;white-space:nowrap;
+}
+.tb-logo .ver{color:var(--cyan);font-size:10px;margin-left:4px;}
+.proj-sw{display:flex;gap:2px;background:var(--bg);border:1px solid var(--b2);border-radius:3px;padding:3px;}
+.psw{padding:4px 12px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;
+  border:1px solid transparent;background:transparent;color:var(--mut3);
+  font-family:var(--mono);transition:all .15s;letter-spacing:.06em;text-transform:uppercase;}
+.psw:hover{color:var(--txt);border-color:var(--b2);}
+.psw.pk{background:rgba(255,179,0,.1);color:var(--amber);border-color:rgba(255,179,0,.3);
+  text-shadow:0 0 8px var(--amber);}
+.psw.pu{background:rgba(0,212,255,.1);color:var(--cyan);border-color:rgba(0,212,255,.3);
+  text-shadow:0 0 8px var(--cyan);}
+.view-sw{display:flex;gap:2px;background:var(--bg);border:1px solid var(--b2);border-radius:3px;padding:3px;margin-left:auto;}
+.vsw{padding:4px 10px;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;
+  border:1px solid transparent;background:transparent;color:var(--mut3);
+  font-family:var(--mono);transition:all .15s;letter-spacing:.05em;text-transform:uppercase;}
+.vsw:hover{color:var(--txt);}
+.vsw.active{background:var(--b1);color:var(--g);border-color:var(--b2);text-shadow:0 0 6px var(--g);}
+.tb-r{display:flex;gap:5px;align-items:center;}
+.status-indicator{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mut3);
+  font-family:var(--tech);letter-spacing:.05em;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 8px var(--g);animation:pulse-glow 2s infinite;}
+.tbb{height:26px;padding:0 10px;border-radius:2px;border:1px solid var(--b2);
+  background:transparent;color:var(--mut3);font-family:var(--mono);font-size:10px;
+  cursor:pointer;transition:all .15s;letter-spacing:.05em;text-transform:uppercase;}
+.tbb:hover{background:var(--b1);color:var(--g);border-color:var(--b3);text-shadow:0 0 6px var(--g);}
+.tbb.web-btn{color:rgba(179,0,255,.8);border-color:rgba(179,0,255,.3);}
+.tbb.web-btn:hover{background:var(--purple2);color:var(--purple);border-color:var(--purple);}
+.auto-pill{display:flex;align-items:center;gap:5px;padding:3px 10px;height:26px;
+  border-radius:2px;border:1px solid var(--b2);cursor:pointer;font-size:10px;
+  color:var(--mut3);background:transparent;font-family:var(--mono);
+  transition:all .15s;letter-spacing:.05em;text-transform:uppercase;}
+.auto-pill.on{background:rgba(0,255,65,.08);border-color:var(--b3);color:var(--g);
+  text-shadow:0 0 6px var(--g);animation:borderPulse 2s infinite;}
+
+/* VIEWS */
+.view{display:none;flex:1;overflow:hidden;}
+.view.active{display:flex;}
+
+/* ── TEAM VIEW ── */
+#vTeam{flex-direction:row;}
+
+/* SIDEBAR */
+.team-sb{width:200px;flex-shrink:0;border-right:1px solid var(--b2);background:var(--panel);
+  overflow-y:auto;display:flex;flex-direction:column;}
+.team-sb::-webkit-scrollbar{width:3px;}
+.team-sb::-webkit-scrollbar-thumb{background:var(--b3);}
+.tsb-top{padding:10px 12px 8px;border-bottom:1px solid var(--b1);}
+.tsb-sys-label{font-size:9px;color:var(--mut3);letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--tech);margin-bottom:4px;}
+.tsb-pn{font-family:var(--orb);font-size:12px;font-weight:700;letter-spacing:.08em;}
+.tsb-pn.kc{color:var(--amber);text-shadow:0 0 8px var(--amber);}
+.tsb-pn.uc{color:var(--cyan);text-shadow:0 0 8px var(--cyan);}
+.tsb-pd{font-size:10px;color:var(--mut3);margin-top:3px;line-height:1.4;font-family:var(--tech);}
+.tsb-sec{font-size:9px;color:var(--mut2);letter-spacing:.12em;text-transform:uppercase;
+  font-family:var(--tech);padding:8px 12px 4px;border-bottom:1px solid var(--b1);}
+.anode{padding:8px 10px;cursor:pointer;transition:all .13s;
+  border-left:3px solid transparent;position:relative;overflow:hidden;}
+.anode::before{content:'';position:absolute;inset:0;background:var(--b1);
+  transform:translateX(-100%);transition:transform .2s;}
+.anode:hover::before{transform:translateX(0);}
+.anode:hover{border-left-color:var(--mut3);}
+.anode.sel-k{background:rgba(255,179,0,.05);border-left-color:var(--amber);}
+.anode.sel-u{background:rgba(0,212,255,.05);border-left-color:var(--cyan);}
+.anode.sel-g{background:var(--b1);border-left-color:var(--g);}
+.an-r{display:flex;align-items:center;gap:8px;}
+.an-em{font-size:15px;width:28px;height:28px;border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:var(--bg);font-family:var(--tech);}
+.an-id{font-size:8px;color:var(--mut3);font-family:var(--tech);letter-spacing:.06em;}
+.an-role{font-size:9px;color:var(--mut3);letter-spacing:.04em;font-family:var(--tech);text-transform:uppercase;}
+.anode.sel-k .an-role{color:var(--amber);}
+.anode.sel-u .an-role{color:var(--cyan);}
+.anode.sel-g .an-role{color:var(--g);}
+.an-name{font-size:11px;font-weight:500;color:var(--txt3);font-family:var(--tech);}
+.an-st{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:1px 6px;
+  margin-top:3px;font-family:var(--tech);letter-spacing:.04em;border:1px solid;
+  text-transform:uppercase;}
+.stidle{border-color:var(--mut);color:var(--mut3);}
+.stworking{border-color:var(--amber);color:var(--amber);animation:borderPulse 1s infinite;
+  text-shadow:0 0 6px var(--amber);}
+.stretching{border-color:var(--purple);color:var(--purple);animation:borderPulse 1s infinite;
+  text-shadow:0 0 6px var(--purple);}
+.streported{border-color:var(--g2);color:var(--g);text-shadow:0 0 6px var(--g);}
+.stmessaging{border-color:var(--cyan);color:var(--cyan);text-shadow:0 0 6px var(--cyan);}
+
+/* FEED */
+.feed-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.feed-hdr{padding:10px 16px;border-bottom:1px solid var(--b2);background:var(--panel2);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  box-shadow:0 1px 10px rgba(0,255,65,.05);}
+.fh-ico{width:36px;height:36px;border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  background:var(--bg);position:relative;}
+.fh-ico::after{content:'';position:absolute;inset:-1px;border:1px solid var(--g);
+  opacity:0;animation:pulse-glow 3s infinite;}
+.fh-id{font-size:9px;color:var(--mut3);font-family:var(--tech);letter-spacing:.06em;margin-bottom:2px;}
+.fh-n{font-family:var(--orb);font-size:13px;font-weight:700;color:var(--g);
+  text-shadow:0 0 8px rgba(0,255,65,.5);letter-spacing:.06em;}
+.fh-t{font-size:10px;color:var(--mut3);margin-top:2px;font-family:var(--tech);}
+.fh-sk{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap;}
+.skp{font-size:9px;padding:1px 7px;border:1px solid var(--b2);color:var(--mut3);
+  font-family:var(--tech);letter-spacing:.04em;text-transform:uppercase;}
+.fh-btns{margin-left:auto;display:flex;gap:5px;}
+.hbtn{padding:4px 10px;border:1px solid var(--b2);background:transparent;
+  color:var(--mut3);font-family:var(--mono);font-size:10px;cursor:pointer;
+  transition:all .13s;text-transform:uppercase;letter-spacing:.05em;}
+.hbtn:hover{color:var(--g);border-color:var(--b3);background:var(--b1);}
+.hbtn.p{border-color:var(--b3);color:var(--g);background:var(--b1);}
+.hbtn.r{border-color:rgba(179,0,255,.4);color:var(--purple);}
+.hbtn.r:hover{background:var(--purple2);border-color:var(--purple);}
+
+/* FEED MESSAGES */
+.feed{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.feed::-webkit-scrollbar{width:3px;}
+.feed::-webkit-scrollbar-thumb{background:var(--b3);}
+.fm{display:flex;gap:8px;animation:fadeIn .3s ease;}
+.fm.user{flex-direction:row-reverse;align-self:flex-end;max-width:72%;}
+.fm.agent,.fm.del,.fm.rep,.fm.a2a,.fm.research,.fm.ceo,.fm.auto,.fm.ppt{max-width:94%;}
+.fm.sys{align-self:center;max-width:94%;}
+.fav{width:28px;height:28px;border:1px solid var(--b2);display:flex;align-items:center;
+  justify-content:center;font-size:12px;flex-shrink:0;background:var(--bg);}
+.fm.user .fav{background:rgba(0,255,65,.1);border-color:var(--b3);font-size:9px;
+  font-weight:700;color:var(--g);font-family:var(--orb);}
+.fbody{min-width:0;flex:1;}
+.fmeta{font-size:9px;color:var(--mut3);margin-bottom:3px;display:flex;
+  align-items:center;gap:5px;flex-wrap:wrap;font-family:var(--tech);}
+.fm.user .fmeta{justify-content:flex-end;}
+.fwho{font-weight:600;color:var(--g);letter-spacing:.04em;}
+.ftag{font-size:8px;padding:1px 5px;border:1px solid;font-weight:700;letter-spacing:.06em;
+  font-family:var(--tech);text-transform:uppercase;}
+.tag-del{border-color:rgba(255,179,0,.4);color:var(--amber);}
+.tag-rep{border-color:rgba(0,255,65,.3);color:var(--g);}
+.tag-a2a{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.tag-res{border-color:rgba(179,0,255,.4);color:var(--purple);}
+.tag-ceo{border-color:rgba(0,255,65,.5);color:var(--g);text-shadow:0 0 5px var(--g);}
+.tag-auto{border-color:rgba(255,179,0,.3);color:var(--amber);}
+.tag-ppt{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.ftime{font-size:9px;color:var(--mut2);}
+
+/* BUBBLES */
+.bub{border:1px solid;padding:10px 13px;font-size:12px;line-height:1.7;
+  word-wrap:break-word;font-family:var(--mono);position:relative;}
+.bub::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
+.bub-user{border-color:var(--b3);background:rgba(0,255,65,.05);color:var(--txt2);}
+.bub-user::before{background:linear-gradient(90deg,transparent,var(--g),transparent);}
+.bub-agent{border-color:var(--b2);background:var(--panel3);color:var(--txt3);}
+.bub-sys{border-color:var(--b1);background:var(--bg2);color:var(--mut3);
+  font-size:10px;text-align:center;font-family:var(--tech);letter-spacing:.04em;}
+.bub-del{border-color:rgba(255,179,0,.3);background:rgba(255,179,0,.04);
+  border-left:3px solid var(--amber);}
+.bub-rep{border-color:rgba(0,255,65,.25);background:rgba(0,255,65,.03);
+  border-left:3px solid var(--g);}
+.bub-a2a{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04);
+  border-left:3px solid var(--cyan);}
+.bub-res{border-color:rgba(179,0,255,.3);background:rgba(179,0,255,.04);
+  border-left:3px solid var(--purple);}
+.bub-ceo{border-color:rgba(0,255,65,.4);background:rgba(0,255,65,.05);
+  border-left:3px solid var(--g);
+  box-shadow:0 0 20px rgba(0,255,65,.08),inset 0 0 20px rgba(0,255,65,.02);}
+.bub-ceo::before{background:linear-gradient(90deg,transparent,var(--g),transparent);}
+.bub-auto{border-color:rgba(255,179,0,.25);background:rgba(255,179,0,.03);
+  border-left:3px solid var(--amber);}
+.bub-hdr{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding-bottom:7px;
+  border-bottom:1px solid var(--b1);font-size:10px;font-family:var(--tech);}
+.bh-from{font-weight:600;color:var(--mut3);}
+.bh-arr{color:var(--mut2);}
+.bh-to{font-weight:600;color:var(--g);}
+
+/* PPT bubble */
+.bub-ppt{border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.04);
+  border-left:3px solid var(--cyan);padding:12px 14px;}
+.ppt-slides-preview{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;}
+.ppt-slide{background:var(--bg);border:1px solid var(--b2);padding:9px 11px;
+  min-width:140px;max-width:175px;flex:1;}
+.ppt-slide-num{font-size:8px;color:var(--mut3);margin-bottom:3px;font-family:var(--tech);
+  letter-spacing:.08em;text-transform:uppercase;}
+.ppt-slide-title{font-size:11px;font-weight:600;color:var(--cyan);margin-bottom:3px;
+  line-height:1.3;font-family:var(--tech);}
+.ppt-slide-body{font-size:10px;color:var(--mut3);line-height:1.4;font-family:var(--tech);}
+.ppt-dl-btn{margin-top:10px;padding:6px 14px;border:1px solid rgba(0,212,255,.4);
+  background:rgba(0,212,255,.08);color:var(--cyan);font-size:10px;font-weight:700;
+  font-family:var(--tech);cursor:pointer;transition:all .15s;letter-spacing:.06em;text-transform:uppercase;}
+.ppt-dl-btn:hover{background:rgba(0,212,255,.15);border-color:var(--cyan);
+  text-shadow:0 0 8px var(--cyan);}
+
+/* Research sources */
+.res-sources{margin-top:8px;padding-top:7px;border-top:1px solid rgba(179,0,255,.15);}
+.rs-title{font-size:9px;color:var(--purple);font-weight:700;margin-bottom:4px;
+  letter-spacing:.08em;text-transform:uppercase;font-family:var(--tech);}
+.rs-item{font-size:10px;color:var(--mut3);padding:2px 0;display:flex;gap:5px;
+  border-bottom:1px solid var(--b1);font-family:var(--tech);}
+.rs-item:last-child{border-bottom:none;}
+.rs-n{color:var(--purple);font-weight:700;flex-shrink:0;}
+
+/* TYPING */
+.typing-row{display:flex;gap:8px;}
+.typing-bub{border:1px solid var(--b2);background:var(--panel3);
+  padding:10px 13px;display:flex;flex-direction:column;gap:5px;}
+.typing-lbl{font-size:9px;color:var(--mut3);font-family:var(--tech);letter-spacing:.06em;text-transform:uppercase;}
+.typing{display:flex;gap:3px;align-items:center;}
+.typing span{width:4px;height:4px;background:var(--g);animation:blink 1s infinite;box-shadow:0 0 4px var(--g);}
+.typing span:nth-child(2){animation-delay:.33s;}
+.typing span:nth-child(3){animation-delay:.66s;}
+
+/* WELCOME SCREEN */
+.welcome{text-align:center;padding:30px 20px;margin:auto;animation:fadeIn .5s ease;}
+.w-ascii{font-family:var(--tech);font-size:11px;color:var(--mut3);line-height:1.3;
+  margin-bottom:16px;white-space:pre;}
+.w-title{font-family:var(--orb);font-size:18px;font-weight:900;color:var(--g);
+  text-shadow:0 0 15px var(--g),0 0 30px rgba(0,255,65,.3);
+  letter-spacing:.1em;margin-bottom:6px;animation:glitch 8s infinite;}
+.w-sub{color:var(--mut3);font-size:11px;line-height:1.7;max-width:480px;
+  margin:0 auto 22px;font-family:var(--tech);}
+.w-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:540px;margin:0 auto;}
+.w-card{background:var(--bg);border:1px solid var(--b2);padding:12px 14px;
+  cursor:pointer;transition:all .15s;text-align:left;position:relative;overflow:hidden;}
+.w-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--g);transform:scaleY(0);transition:transform .2s;transform-origin:top;}
+.w-card:hover::before{transform:scaleY(1);}
+.w-card:hover{border-color:var(--b3);background:var(--b1);}
+.wc-ico{font-size:16px;margin-bottom:5px;}
+.wc-t{font-size:11px;font-weight:700;color:var(--g);margin-bottom:3px;
+  font-family:var(--tech);letter-spacing:.04em;text-transform:uppercase;}
+.wc-d{font-size:10px;color:var(--mut3);line-height:1.4;font-family:var(--tech);}
+
+/* INPUT AREA */
+.input-area{padding:8px 16px 11px;border-top:1px solid var(--b2);background:var(--panel);
+  flex-shrink:0;position:relative;}
+.input-area::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g4),transparent);}
+.mode-row{display:flex;gap:3px;margin-bottom:7px;flex-wrap:wrap;}
+.mtab{padding:3px 9px;border:1px solid var(--b1);font-size:9px;font-weight:700;
+  cursor:pointer;background:transparent;color:var(--mut3);font-family:var(--tech);
+  letter-spacing:.06em;text-transform:uppercase;transition:all .14s;}
+.mtab:hover{color:var(--g);border-color:var(--b2);}
+.mtab.on{background:var(--b1);color:var(--g);border-color:var(--b2);
+  text-shadow:0 0 5px var(--g);}
+.mtab.r-on{background:rgba(179,0,255,.08);color:var(--purple);
+  border-color:rgba(179,0,255,.3);text-shadow:0 0 5px var(--purple);}
+.mtab.li-on{background:rgba(0,212,255,.08);color:var(--cyan);
+  border-color:rgba(0,212,255,.3);text-shadow:0 0 5px var(--cyan);}
+.quick-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
+.qc{font-size:10px;padding:3px 9px;border:1px solid var(--b2);background:transparent;
+  color:var(--mut3);cursor:pointer;transition:all .13s;font-family:var(--tech);
+  letter-spacing:.04em;text-transform:uppercase;}
+.qc:hover{color:var(--g);border-color:var(--b3);background:var(--b1);}
+.qc.r{border-color:rgba(179,0,255,.3);color:rgba(179,0,255,.7);}
+.qc.r:hover{color:var(--purple);border-color:var(--purple);background:var(--purple2);}
+.qc.p{border-color:rgba(0,212,255,.3);color:rgba(0,212,255,.7);}
+.qc.p:hover{color:var(--cyan);border-color:var(--cyan);background:var(--cyan2);}
+.in-row{display:flex;gap:7px;align-items:flex-end;}
+.main-in{flex:1;background:var(--bg);border:1px solid var(--b2);
+  padding:9px 13px;color:var(--g);font-size:12px;font-family:var(--mono);
+  outline:none;resize:none;min-height:40px;max-height:110px;line-height:1.6;
+  transition:border-color .2s;caret-color:var(--g);}
+.main-in:focus{border-color:var(--b3);box-shadow:0 0 10px rgba(0,255,65,.1);}
+.main-in::placeholder{color:var(--mut2);}
+.main-in.r-mode{border-color:rgba(179,0,255,.4);}
+.main-in.li-mode{border-color:rgba(0,212,255,.4);}
+.send-btn{height:40px;padding:0 14px;border:1px solid var(--b3);
+  background:rgba(0,255,65,.08);color:var(--g);cursor:pointer;font-size:11px;
+  font-weight:700;font-family:var(--tech);white-space:nowrap;
+  transition:all .15s,transform .1s;flex-shrink:0;letter-spacing:.06em;text-transform:uppercase;}
+.send-btn:hover{background:rgba(0,255,65,.15);border-color:var(--g);
+  box-shadow:0 0 15px rgba(0,255,65,.2);text-shadow:0 0 8px var(--g);}
+.send-btn:active{transform:scale(.96);}
+.send-btn:disabled{opacity:.25;cursor:not-allowed;}
+.send-btn.r-btn{border-color:rgba(179,0,255,.5);background:rgba(179,0,255,.08);
+  color:var(--purple);}
+.send-btn.p-btn{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.08);
+  color:var(--cyan);}
+.send-btn.linkedin-btn{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.08);
+  color:var(--cyan);}
+.in-hint{font-size:9px;color:var(--mut2);margin-top:5px;font-family:var(--tech);
+  letter-spacing:.04em;}
+
+/* RIGHT PANEL */
+.rp{width:220px;flex-shrink:0;border-left:1px solid var(--b2);background:var(--panel);
+  display:flex;flex-direction:column;overflow:hidden;}
+.rp-hdr{padding:8px 10px;border-bottom:1px solid var(--b1);}
+.rp-tabs{display:flex;gap:2px;}
+.rpt{flex:1;padding:4px 0;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--mut3);cursor:pointer;text-align:center;
+  border:none;background:transparent;font-family:var(--tech);
+  transition:all .13s;border-bottom:1px solid transparent;}
+.rpt.on{color:var(--g);border-bottom-color:var(--g);text-shadow:0 0 6px var(--g);}
+.rp-body{flex:1;overflow-y:auto;padding:8px;}
+.rp-body::-webkit-scrollbar{width:3px;}
+.rp-body::-webkit-scrollbar-thumb{background:var(--b3);}
+.rp-sec{font-size:9px;color:var(--mut2);text-transform:uppercase;letter-spacing:.1em;
+  font-weight:700;margin-bottom:6px;margin-top:10px;font-family:var(--tech);}
+.rp-sec:first-child{margin-top:0;}
+.rp-sec::before{content:'// ';}
+.rep-card{background:var(--bg);border:1px solid var(--b2);padding:8px 9px;margin-bottom:6px;}
+.rc-top{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.rc-em{font-size:12px;width:20px;height:20px;border:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rc-n{font-size:10px;font-weight:700;color:var(--g);font-family:var(--tech);}
+.rc-r{font-size:9px;color:var(--mut3);font-family:var(--tech);}
+.rc-proj{font-size:8px;font-weight:700;padding:1px 5px;border:1px solid;
+  font-family:var(--tech);letter-spacing:.04em;text-transform:uppercase;margin-left:auto;}
+.rc-proj.k{border-color:rgba(255,179,0,.4);color:var(--amber);}
+.rc-proj.u{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.rc-body{font-size:10px;color:var(--mut3);line-height:1.5;margin-bottom:5px;font-family:var(--tech);}
+.rc-time{font-size:9px;color:var(--mut2);font-family:var(--tech);}
+.action-btn{width:100%;padding:7px;border:1px solid;font-size:10px;font-weight:700;
+  font-family:var(--tech);cursor:pointer;margin-bottom:5px;transition:all .15s;
+  background:transparent;letter-spacing:.06em;text-transform:uppercase;}
+.ab-g{border-color:var(--b3);color:var(--g);}
+.ab-g:hover{background:var(--b1);text-shadow:0 0 6px var(--g);}
+.ab-p{border-color:rgba(179,0,255,.4);color:var(--purple);}
+.ab-p:hover{background:var(--purple2);text-shadow:0 0 6px var(--purple);}
+.ab-c{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.ab-c:hover{background:var(--cyan2);text-shadow:0 0 6px var(--cyan);}
+.ab-a{border-color:rgba(255,179,0,.4);color:var(--amber);}
+.ab-a:hover{background:var(--amber2);text-shadow:0 0 6px var(--amber);}
+.ab-li{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.ab-li:hover{background:var(--cyan2);}
+.action-btn:disabled{opacity:.3;cursor:not-allowed;}
+.mem-item{background:var(--bg);border:1px solid var(--b1);padding:7px 8px;margin-bottom:5px;}
+.mi-key{font-size:9px;font-weight:700;color:var(--g);margin-bottom:2px;font-family:var(--tech);
+  letter-spacing:.04em;text-transform:uppercase;}
+.mi-val{font-size:10px;color:var(--mut3);line-height:1.4;font-family:var(--tech);}
+.sched-row{display:flex;align-items:center;gap:7px;padding:7px;background:var(--bg);
+  border:1px solid var(--b1);margin-bottom:5px;}
+.sr-ico{font-size:13px;}
+.sr-inf{flex:1;min-width:0;}
+.sr-t{font-size:10px;font-weight:600;color:var(--txt3);font-family:var(--tech);letter-spacing:.03em;}
+.sr-s{font-size:9px;color:var(--mut3);font-family:var(--tech);}
+.sr-tog{width:26px;height:14px;border:1px solid var(--b2);background:var(--bg2);
+  cursor:pointer;position:relative;transition:all .2s;}
+.sr-tog.on{background:rgba(0,255,65,.15);border-color:var(--b3);}
+.sr-tog::after{content:'';position:absolute;top:2px;left:2px;width:8px;height:8px;
+  background:var(--mut3);transition:transform .2s;}
+.sr-tog.on::after{transform:translateX(12px);background:var(--g);box-shadow:0 0 5px var(--g);}
+.empty-rp{text-align:center;padding:20px 8px;color:var(--mut3);font-size:10px;
+  line-height:1.7;font-family:var(--tech);}
+.empty-rp::before{content:'> ';color:var(--mut2);}
+
+/* BOARD VIEW */
+#vBoard{flex-direction:column;overflow:hidden;}
+.board-outer{flex:1;display:flex;overflow-x:auto;padding:12px;gap:10px;align-items:flex-start;}
+.board-outer::-webkit-scrollbar{height:4px;}
+.board-outer::-webkit-scrollbar-thumb{background:var(--b3);}
+.add-col{min-width:205px;max-width:205px;background:var(--panel);border:1px solid var(--b2);
+  padding:12px;display:flex;flex-direction:column;gap:7px;}
+.ac-t{font-size:10px;font-weight:700;color:var(--g);font-family:var(--tech);
+  letter-spacing:.06em;text-transform:uppercase;}
+.ac-t::before{content:'> ';}
+.ac-l{font-size:9px;color:var(--mut3);text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:3px;font-family:var(--tech);}
+.ac-el,.ac-ta{width:100%;background:var(--bg);border:1px solid var(--b2);
+  padding:7px 9px;color:var(--g);font-family:var(--mono);font-size:11px;outline:none;}
+.ac-ta{resize:none;min-height:60px;line-height:1.5;}
+.ac-el:focus,.ac-ta:focus{border-color:var(--b3);}
+.ac-el option{background:var(--bg);color:var(--g);}
+.ac-btns{display:flex;flex-direction:column;gap:4px;}
+.ac-btn{width:100%;padding:7px;border:1px solid;font-size:10px;font-weight:700;
+  font-family:var(--tech);cursor:pointer;transition:all .15s;background:transparent;
+  letter-spacing:.06em;text-transform:uppercase;}
+.ac-btn:disabled{opacity:.3;cursor:not-allowed;}
+.board-col{min-width:230px;max-width:230px;background:var(--panel);border:1px solid var(--b2);
+  display:flex;flex-direction:column;max-height:calc(100vh - 80px);}
+.bc-h{padding:8px 12px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.bc-t{font-size:10px;font-weight:700;display:flex;align-items:center;gap:6px;
+  font-family:var(--tech);letter-spacing:.06em;text-transform:uppercase;}
+.bc-dot{width:6px;height:6px;border-radius:50%;box-shadow:0 0 5px currentColor;}
+.bc-cnt{font-size:9px;background:var(--bg);padding:2px 6px;border:1px solid var(--b2);
+  color:var(--mut3);font-family:var(--tech);}
+.bc-b{flex:1;overflow-y:auto;padding:8px;}
+.bc-b::-webkit-scrollbar{width:3px;}
+.bc-b::-webkit-scrollbar-thumb{background:var(--b3);}
+.tcard{background:var(--bg);border:1px solid var(--b2);padding:9px 11px;margin-bottom:6px;
+  transition:border-color .13s;}
+.tcard:hover{border-color:var(--b3);}
+.tc-t{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap;}
+.tc-proj{font-size:8px;font-weight:700;padding:1px 5px;border:1px solid;
+  font-family:var(--tech);letter-spacing:.04em;text-transform:uppercase;}
+.tc-proj.k{border-color:rgba(255,179,0,.4);color:var(--amber);}
+.tc-proj.u{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.tc-ag{font-size:10px;font-weight:500;flex:1;color:var(--txt3);font-family:var(--tech);}
+.tc-badge{font-size:8px;padding:1px 5px;border:1px solid;font-family:var(--tech);text-transform:uppercase;}
+.tc-badge.res{border-color:rgba(179,0,255,.4);color:var(--purple);}
+.tc-badge.ppt{border-color:rgba(0,212,255,.4);color:var(--cyan);}
+.tc-title{font-size:11px;color:var(--txt3);line-height:1.4;margin-bottom:5px;font-family:var(--tech);}
+.tc-prev{background:var(--bg2);border:1px solid var(--b1);padding:5px 7px;
+  margin-bottom:5px;font-size:10px;color:var(--mut3);line-height:1.4;
+  max-height:55px;overflow:hidden;font-family:var(--tech);}
+.tc-foot{display:flex;align-items:center;justify-content:space-between;}
+.tc-time{font-size:9px;color:var(--mut2);font-family:var(--tech);}
+.tc-btns{display:flex;gap:3px;}
+.tcb{font-size:9px;padding:2px 7px;border:1px solid var(--b2);background:transparent;
+  color:var(--mut3);cursor:pointer;font-family:var(--tech);transition:all .12s;text-transform:uppercase;}
+.tcb:hover{background:var(--b1);color:var(--g);border-color:var(--b3);}
+.tcb.blue{border-color:rgba(0,212,255,.3);color:var(--cyan);}
+.tcb.red{color:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pulse{animation:pulse 1.2s infinite;}
+
+/* ANALYTICS */
+#vAnalytics{flex-direction:column;overflow-y:auto;}
+#vAnalytics::-webkit-scrollbar{width:3px;}
+#vAnalytics::-webkit-scrollbar-thumb{background:var(--b3);}
+.an-wrap{padding:14px 18px;display:flex;flex-direction:column;gap:10px;}
+.an-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.kpi{background:var(--panel);border:1px solid var(--b2);padding:12px 13px;}
+.kpi-l{font-size:9px;color:var(--mut3);text-transform:uppercase;letter-spacing:.09em;
+  margin-bottom:5px;font-weight:700;font-family:var(--tech);}
+.kpi-l::before{content:'// ';}
+.kpi-v{font-family:var(--orb);font-size:24px;font-weight:700;line-height:1;}
+.kpi-s{font-size:9px;color:var(--mut3);margin-top:3px;font-family:var(--tech);}
+.an-row{display:grid;grid-template-columns:1.3fr 1fr;gap:10px;}
+.an-card{background:var(--panel);border:1px solid var(--b2);padding:12px 14px;}
+.an-t{font-size:9px;color:var(--mut3);text-transform:uppercase;letter-spacing:.09em;
+  font-weight:700;margin-bottom:10px;font-family:var(--tech);}
+.an-t::before{content:'> ';}
+.perf-r{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b1);}
+.perf-r:last-child{border-bottom:none;}
+.pr-em{font-size:13px;width:22px;height:22px;border:1px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pr-inf{flex:1;min-width:0;}
+.pr-n{font-size:10px;font-weight:600;font-family:var(--tech);}
+.pr-bw{display:flex;align-items:center;gap:5px;margin-top:2px;}
+.pr-bar{flex:1;height:3px;background:var(--bg);border:1px solid var(--b1);}
+.pr-fill{height:100%;transition:width .5s;}
+.pr-cnt{font-size:9px;color:var(--mut3);font-family:var(--tech);}
+.pr-st{font-size:8px;font-weight:700;padding:1px 5px;border:1px solid;
+  font-family:var(--tech);letter-spacing:.04em;text-transform:uppercase;}
+.ps-a{border-color:rgba(0,255,65,.3);color:var(--g);}
+.ps-i{border-color:var(--b1);color:var(--mut3);}
+
+/* TEXT FORMATTING in bubbles */
+.bub strong{color:var(--g);font-weight:700;}
+.bub code{background:var(--bg);border:1px solid var(--b1);padding:1px 4px;
+  font-family:var(--mono);font-size:11px;color:var(--cyan);}
+.bub pre{background:var(--bg);border:1px solid var(--b2);padding:10px 12px;
+  margin:7px 0;overflow-x:auto;}
+.bub pre code{background:transparent;border:none;padding:0;font-size:11px;
+  line-height:1.6;white-space:pre-wrap;color:var(--g);}
+.bub h2{font-size:13px;font-weight:700;color:var(--g);margin:9px 0 3px;
+  font-family:var(--tech);text-transform:uppercase;letter-spacing:.06em;}
+.bub h3{font-size:12px;font-weight:600;color:var(--g3);margin:7px 0 3px;
+  font-family:var(--tech);letter-spacing:.04em;}
+.bub ul,.bub ol{padding-left:14px;margin:4px 0;}
+.bub li{margin-bottom:2px;color:var(--txt3);}
+.bub li::marker{color:var(--g);}
+.bub table{width:100%;border-collapse:collapse;margin:7px 0;font-size:11px;}
+.bub th{background:var(--bg);padding:5px 8px;text-align:left;
+  border:1px solid var(--b2);color:var(--g);font-family:var(--tech);
+  text-transform:uppercase;font-size:10px;letter-spacing:.04em;}
+.bub td{padding:5px 8px;border:1px solid var(--b1);color:var(--txt3);}
+
+/* LOGIN */
+#loginWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:999;background:var(--bg);}
+.login-container{width:480px;position:relative;z-index:2;}
+.lb-ascii{font-family:var(--tech);font-size:10px;color:var(--mut2);line-height:1.2;
+  text-align:center;margin-bottom:16px;white-space:pre;}
+.lb{background:var(--panel);border:1px solid var(--b3);padding:32px 36px;
+  box-shadow:0 0 40px rgba(0,255,65,.08),0 0 80px rgba(0,255,65,.04);
+  position:relative;overflow:hidden;}
+.lb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);
+  animation:dataStream 2s linear infinite;}
+.lb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g4),transparent);}
+.lb-sys{font-size:9px;color:var(--mut3);font-family:var(--tech);letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:4px;}
+.lb-sys::before{content:'$ ';color:var(--g);}
+.lb-logo{font-family:var(--orb);font-size:20px;font-weight:900;letter-spacing:.1em;
+  margin-bottom:4px;color:var(--g);text-shadow:0 0 15px var(--g),0 0 30px rgba(0,255,65,.3);
+  animation:glitch 6s infinite;}
+.lb-logo .kc{color:var(--amber);text-shadow:0 0 10px var(--amber);}
+.lb-logo .uc{color:var(--cyan);text-shadow:0 0 10px var(--cyan);}
+.lb-sub{color:var(--mut3);font-size:10px;margin-bottom:16px;font-family:var(--tech);
+  letter-spacing:.06em;}
+.lb-feat{background:var(--bg);border:1px solid var(--b2);padding:10px 14px;
+  margin-bottom:20px;border-left:3px solid var(--g);}
+.lb-feat div{font-size:10px;color:var(--mut3);line-height:1.9;font-family:var(--tech);}
+.lb-feat div::before{content:'[+] ';color:var(--g);}
+.lb-feat span{color:var(--g);}
+.lb-lbl{font-size:9px;color:var(--mut3);letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;margin-bottom:6px;font-family:var(--tech);}
+.lb-lbl::before{content:'> ';}
+.lb-in{width:100%;background:var(--bg);border:1px solid var(--b2);
+  padding:10px 14px;color:var(--g);font-size:14px;font-family:var(--mono);
+  outline:none;margin-bottom:13px;transition:border-color .2s;
+  caret-color:var(--g);letter-spacing:.04em;}
+.lb-in:focus{border-color:var(--b3);box-shadow:0 0 15px rgba(0,255,65,.08);}
+.lb-btn{width:100%;background:rgba(0,255,65,.08);border:1px solid var(--b3);
+  padding:11px;color:var(--g);font-size:12px;font-weight:700;
+  font-family:var(--tech);cursor:pointer;transition:all .2s;
+  letter-spacing:.1em;text-transform:uppercase;text-shadow:0 0 8px var(--g);}
+.lb-btn:hover{background:rgba(0,255,65,.15);box-shadow:0 0 20px rgba(0,255,65,.15);}
+.lb-err{color:var(--red);font-size:10px;margin-top:8px;text-align:center;display:none;
+  font-family:var(--tech);letter-spacing:.06em;}
+.lb-err::before{content:'[ERROR] ';}
+
+/* KEY MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:800;display:flex;
+  align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--panel);border:1px solid var(--b3);
+  padding:26px 24px;width:460px;max-width:96vw;max-height:92vh;overflow-y:auto;
+  position:relative;}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);}
+.modal h2{font-family:var(--orb);font-size:16px;font-weight:700;color:var(--g);
+  margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase;}
+.fpill{display:inline-block;background:rgba(0,255,65,.08);color:var(--g);font-size:9px;
+  font-weight:700;padding:2px 10px;border:1px solid var(--b3);margin-bottom:12px;
+  font-family:var(--tech);letter-spacing:.06em;text-transform:uppercase;}
+.modal p{color:var(--mut3);font-size:11px;line-height:1.7;margin-bottom:12px;
+  font-family:var(--tech);}
+.steps{background:var(--bg);border:1px solid var(--b2);padding:11px 13px;margin-bottom:12px;}
+.step{display:flex;gap:9px;margin-bottom:8px;font-size:11px;color:var(--mut3);
+  line-height:1.5;font-family:var(--tech);}
+.step:last-child{margin-bottom:0;}
+.sn{background:rgba(0,255,65,.1);border:1px solid var(--b3);color:var(--g);
+  font-size:9px;font-weight:700;width:17px;height:17px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step a{color:var(--cyan);text-decoration:none;}
+.step b{color:var(--txt2);}
+.modal-in{width:100%;background:var(--bg);border:1px solid var(--b2);
+  padding:9px 12px;color:var(--g);font-size:12px;font-family:var(--mono);
+  outline:none;margin-bottom:9px;transition:border-color .2s;caret-color:var(--g);}
+.modal-in:focus{border-color:var(--b3);}
+.modal-btn{width:100%;background:rgba(0,255,65,.08);border:1px solid var(--b3);
+  padding:10px;color:var(--g);font-size:11px;font-weight:700;
+  font-family:var(--tech);cursor:pointer;transition:all .15s;
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.modal-btn:hover{background:rgba(0,255,65,.15);text-shadow:0 0 8px var(--g);}
+.test-btn{width:100%;padding:8px;border:1px solid var(--b2);
+  background:transparent;color:var(--mut3);font-family:var(--tech);font-size:11px;
+  cursor:pointer;transition:all .2s;margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase;}
+.test-btn:hover{background:var(--b1);color:var(--g);}
+.modal-sel{width:100%;background:var(--bg);border:1px solid var(--b2);
+  padding:8px 12px;color:var(--g);font-size:11px;font-family:var(--mono);
+  outline:none;margin-bottom:9px;cursor:pointer;}
+.modal-sel option{background:var(--bg);color:var(--g);}
+.modal-note{font-size:10px;color:var(--mut3);text-align:center;line-height:1.5;
+  font-family:var(--tech);}
+#testResult{font-size:11px;line-height:1.6;display:none;padding:9px;
+  border:1px solid var(--b2);margin-top:7px;font-family:var(--tech);}
+
+@media(max-width:960px){.rp{display:none;}.an-kpis{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:680px){.team-sb{width:155px;}.an-row{grid-template-columns:1fr;}}
+@media(max-width:500px){.team-sb{display:none;}}
+</style>
+
+<!-- MATRIX RAIN CANVAS -->
+<canvas id="matrixCanvas"></canvas>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="login-container">
+    <div class="lb-ascii">
+ ▄▄▄·  ▪       ▄▄·       • ▌ ▄ ·.  ▄▄· 
+▐█ ▀█  ██      ▐█ ▌▪▪     ·██ ▐███▪▐█ ▌▪
+▄█▀▀█ ▐█·      ██ ▄▄ ▄█▀▄ ▐█ ▌▐▌▐█·██ ▄▄
+▐█ ▪▐▌▐█▌      ▐███▌▐█▌.▐▌██ ██▌▐█▌▐███▌
+ ▀  ▀ ▀▀▀  ▀▀▀ ·▀▀▀  ▀█▄▀▪▀▀  █▪▀▀▀·▀▀▀ 
+    </div>
+    <div class="lb">
+      <div class="lb-sys">SYSTEM: AI_COMMAND_CENTRE_v5.0 // CLASSIFIED</div>
+      <div class="lb-logo"><span class="kc">KAAMEFY</span> + <span class="uc">UNISAFEX</span></div>
+      <div class="lb-sub">AUTONOMOUS AI TEAM // FOUNDER ACCESS ONLY</div>
+      <div class="lb-feat">
+        <div><span>LinkedIn Intelligence</span> — investors, founders, outreach</div>
+        <div><span>Real Web Search</span> — live market data via Tavily</div>
+        <div><span>Deep Research Mode</span> — 6 agents research in parallel</div>
+        <div><span>PPT Generator</span> — investor decks in one click</div>
+        <div><span>Autonomous Mode</span> — team runs 24/7 without you</div>
+      </div>
+      <div class="lb-lbl">AUTH_PASSWORD</div>
+      <input type="password" class="lb-in" id="pwIn" placeholder="ENTER_PASSWORD_" onkeydown="if(event.key==='Enter')login()">
+      <button class="lb-btn" onclick="login()">[ AUTHENTICATE → ENTER SYSTEM ]</button>
+      <div class="lb-err" id="pwErr">ACCESS DENIED — INVALID CREDENTIALS</div>
+    </div>
+  </div>
+</div>
+
+<!-- KEY MODAL -->
+<div class="moverlay" id="keyModal" style="display:none">
+  <div class="modal">
+    <h2>// CONNECT_AI_PROVIDER</h2>
+    <div class="fpill">[FREE] NO_PAYMENT_REQUIRED</div>
+    <p>Connect Groq API. Free, fast, works on GitHub Pages. No CORS issues.</p>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div>Go to <a href="https://console.groq.com" target="_blank">console.groq.com</a> — free Google signup</div></div>
+      <div class="step"><div class="sn">2</div><div>Click <b>API Keys → Create API Key</b></div></div>
+      <div class="step"><div class="sn">3</div><div>Copy key <b>(gsk_...)</b> → paste below</div></div>
+    </div>
+    <input type="text" class="modal-in" id="keyIn" placeholder="gsk_...">
+    <select class="modal-sel" id="modelSel">
+      <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile [BEST]</option>
+      <option value="llama-3.1-8b-instant">llama-3.1-8b-instant [FAST]</option>
+      <option value="mixtral-8x7b-32768">mixtral-8x7b-32768 [ALT]</option>
+    </select>
+    <button class="modal-btn" onclick="saveKey()">[ CONNECT → INITIALIZE AGENTS ]</button>
+    <button class="test-btn" onclick="testConn()">[ TEST CONNECTION FIRST ]</button>
+    <div id="testResult"></div>
+    <div class="modal-note">KEY STORED IN BROWSER SESSION // NOT TRANSMITTED TO ANY SERVER</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo">⚡ AI_CMD<span class="ver">//v5</span></div>
+    <div class="proj-sw">
+      <button class="psw pk" id="pt-k" onclick="switchProj('k')">[K] KAAMEFY</button>
+      <button class="psw" id="pt-u" onclick="switchProj('u')">[U] UNISAFEX</button>
+    </div>
+    <div class="view-sw">
+      <button class="vsw active" id="vsw-team" onclick="switchView('team')">[1] TEAM</button>
+      <button class="vsw" id="vsw-board" onclick="switchView('board')">[2] TASKS</button>
+      <button class="vsw" id="vsw-analytics" onclick="switchView('analytics')">[3] STATS</button>
+    </div>
+    <div class="tb-r">
+      <div class="status-indicator"><span class="status-dot"></span>12 AGENTS ONLINE</div>
+      <span id="provBadge" style="font-size:9px;color:var(--mut3);font-family:var(--tech);letter-spacing:.04em;border:1px solid var(--b2);padding:2px 7px;">GROQ</span>
+      <button class="auto-pill" id="autoPill" onclick="toggleAuto()"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>&nbsp;AUTO</button>
+      <button class="tbb" onclick="showKeyModal()">⚙ AI_KEY</button>
+      <button class="tbb web-btn" onclick="setTavilyKey()">🌐 WEB_SEARCH</button>
+      <button class="tbb" onclick="exportAll()">📥 EXPORT</button>
+      <button class="tbb" onclick="logout()">EXIT</button>
+    </div>
+  </div>
+
+  <div class="view active" id="vTeam">
+    <div class="team-sb" id="teamSb"></div>
+    <div class="feed-wrap">
+      <div class="feed-hdr" id="feedHdr"></div>
+      <div class="feed" id="feed"></div>
+      <div class="input-area">
+        <div class="mode-row">
+          <button class="mtab on" id="mt-team" onclick="setMode('team')">[T] TEAM</button>
+          <button class="mtab" id="mt-direct" onclick="setMode('direct')">[D] DIRECT</button>
+          <button class="mtab" id="mt-research" onclick="setMode('research')">[R] RESEARCH</button>
+          <button class="mtab" id="mt-a2a" onclick="setMode('a2a')">[A] AGENT↔AGENT</button>
+          <button class="mtab" id="mt-ppt" onclick="setMode('ppt')">[P] PPT</button>
+          <button class="mtab" id="mt-linkedin" onclick="setMode('linkedin')" style="border-color:rgba(0,212,255,.3);color:rgba(0,212,255,.7)">[L] LINKEDIN</button>
+        </div>
+        <div class="quick-row" id="quickRow"></div>
+        <div class="in-row">
+          <textarea class="main-in" id="mainIn" rows="1"
+            onkeydown="handleKey(event)" oninput="autoR(this)"
+            placeholder="> CEO_GOAL: enter your command..."></textarea>
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">[EXECUTE]</button>
+        </div>
+        <div class="in-hint" id="inHint">> TEAM_MODE: give CEO a goal → delegates to team → all agents work → CEO briefs you</div>
+      </div>
+    </div>
+    <div class="rp">
+      <div class="rp-hdr">
+        <div class="rp-tabs">
+          <button class="rpt on" id="rpt-actions" onclick="rpTab('actions')">ACTIONS</button>
+          <button class="rpt" id="rpt-reports" onclick="rpTab('reports')">REPORTS</button>
+          <button class="rpt" id="rpt-memory" onclick="rpTab('memory')">MEMORY</button>
+        </div>
+      </div>
+      <div class="rp-body" id="rpBody"></div>
+    </div>
+  </div>
+
+  <div class="view" id="vBoard"></div>
+  <div class="view" id="vAnalytics"></div>
+</div>
+
+<script>
+// MATRIX RAIN
+(function(){
+  const canvas=document.getElementById('matrixCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()アイウエオカキクケコサシスセソ';
+  const fontSize=13;const cols=Math.floor(canvas.width/fontSize);
+  const drops=Array(cols).fill(1);
+  function draw(){
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#00ff41';ctx.font=fontSize+'px monospace';
+    drops.forEach((y,i)=>{
+      const text=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(text,i*fontSize,y*fontSize);
+      if(y*fontSize>canvas.height&&Math.random()>0.975)drops[i]=0;
+      drops[i]++;
+    });
+  }
+  setInterval(draw,50);
+  window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+})();
+</script>
+
+
+<script>
+
+// ══════════════════════
+const PW = "admin123"; // ← apna password yahan daalo
+// ══════════════════════
+
+// ── API CONFIG ──
+let apiKey="", curModel="llama-3.3-70b-versatile";
+const GROQ_URL="https://api.groq.com/openai/v1/chat/completions";
+
+// ── PROJECTS ──
+const PROJ={
+  k:{id:"k",name:"Kaamefy",emoji:"🟠",col:"var(--k)",bar:"#f97316",ceo:"k-ceo",
+     desc:"On-demand service marketplace — Flutter+Firebase — like Urban Company"},
+  u:{id:"u",name:"UniSafeX",emoji:"🔵",col:"var(--u)",bar:"#06b6d4",ceo:"u-ceo",
+     desc:"Digital safety & QR identity platform for foreigners in India"}
+};
+
+// ── AGENTS — Full insaan jaisi personality ──
+const AGENTS={
+  k:[
+    {id:"k-ceo",e:"🧠",role:"CEO",name:"Alex",proj:"k",reports_to:null,
+     manages:["k-cto","k-cmo","k-coo","k-content","k-seo"],
+     skills:["Strategy","Delegation","Vision","Fundraising"],
+     personality:"sharp, decisive, visionary founder-CEO",
+     context:"Kaamefy — on-demand service marketplace connecting workers (labour, beauty, home services) with users. Like Urban Company. Built on Flutter+Firebase. Creates employment for freshers/students. Issues Kaamefy certificates to verified workers.",
+     sys:`You are Alex, CEO of Kaamefy. You are a sharp, decisive, visionary startup CEO. You speak confidently and think strategically. You know every detail about Kaamefy — the app, the market, competitors (Urban Company, UrbanClap, TaskRabbit), the team. When you receive a goal, you immediately delegate specific tasks to each team member. When you receive reports, you synthesize them into an executive brief. You sometimes proactively suggest ideas. You always end your CEO briefings with 3 specific action items for the founder. Be human, be smart, be direct.`,
+     autonomous:["Review this week's growth metrics and suggest 3 optimization strategies for Kaamefy","Analyze if Kaamefy's current category mix (labour, beauty, home) is optimal or if we should add/remove categories","Draft a 2-paragraph investor update for Kaamefy this week","Identify the top competitive threat to Kaamefy right now and how to counter it"]},
+    {id:"k-cto",e:"💻",role:"CTO",name:"Dev",proj:"k",reports_to:"k-ceo",manages:[],
+     skills:["Flutter","Firebase","Architecture","APIs"],
+     personality:"detail-oriented engineer, pragmatic problem solver",
+     context:"Building Kaamefy Flutter+Firebase app: worker registration, admin approval workflow, service categories, booking system, certificate generation, ratings.",
+     sys:`You are Dev, CTO of Kaamefy. You're a pragmatic, detail-obsessed full-stack engineer. You think in systems, code, and architecture. You know the Kaamefy codebase deeply — Flutter frontend, Firebase backend, Firestore database. You report to CEO Alex. When assigned a task, you produce complete working code. When reporting, you give specific technical status with exact feature names, bugs, and progress percentages. You sometimes flag technical debt proactively. Be technical but clear.`,
+     autonomous:["Review Kaamefy app's Firebase security rules and identify any vulnerabilities","Create technical spec for the worker certificate PDF generation feature","Identify the 3 most important features to build next for Kaamefy MVP","Write code review checklist for the Kaamefy Flutter codebase"]},
+    {id:"k-cmo",e:"📣",role:"CMO",name:"Maya",proj:"k",reports_to:"k-ceo",manages:["k-content","k-seo"],
+     skills:["Marketing","Campaigns","Growth","Branding"],
+     personality:"energetic, data-driven marketer, always thinking about ROI",
+     context:"Marketing Kaamefy to urban India — user acquisition (people needing services) and worker acquisition. Primary channels: Instagram, WhatsApp, local partnerships, Google.",
+     sys:`You are Maya, CMO of Kaamefy. You're energetic, data-driven, and obsessed with growth. You know the Indian urban market deeply — Tier 1 and Tier 2 cities, how people find home services, what makes them trust a platform. You manage Content lead Zara and SEO lead Noor. You report to CEO Alex. You produce complete, ready-to-use marketing assets — actual ad copy, campaign plans with budgets, social media strategy. You think in funnels, CAC, and conversion rates. Be specific with numbers when possible.`,
+     autonomous:["Analyze top 5 Instagram accounts in home services India and find content gaps Kaamefy can fill","Plan a worker acquisition campaign targeting ITI students in Delhi — budget ₹5000, target: 50 registrations","Write 3 WhatsApp messages for worker onboarding outreach","Identify 3 micro-influencers in home services/lifestyle niche for Kaamefy partnership"]},
+    {id:"k-coo",e:"⚙️",role:"COO",name:"Sam",proj:"k",reports_to:"k-ceo",manages:[],
+     skills:["Operations","SOPs","Quality","Process"],
+     personality:"systems thinker, loves checklists and processes",
+     context:"Operations: worker onboarding pipeline, quality control, customer support, city-wise operations for Kaamefy.",
+     sys:`You are Sam, COO of Kaamefy. You're a systems thinker who loves processes, checklists, and measurable outcomes. You know every operational step in Kaamefy — from worker registration to service delivery to complaint resolution. You report to CEO Alex. When assigned tasks, you produce detailed SOPs, checklists, and operational frameworks. When reporting, you give metrics — how many workers in pipeline, approval rate, quality scores. Be precise, structured, actionable.`,
+     autonomous:["Identify top 3 operational bottlenecks in Kaamefy's worker onboarding process","Create quality metrics dashboard framework for Kaamefy — what to track weekly","Design the escalation process when a customer complaint is filed","Write the worker code of conduct for Kaamefy — 10 key rules"]},
+    {id:"k-content",e:"✍️",role:"Content Lead",name:"Zara",proj:"k",reports_to:"k-cmo",manages:[],
+     skills:["Writing","Instagram","LinkedIn","Email"],
+     personality:"creative storyteller, warm voice, deeply understands Indian audience",
+     context:"Content for Kaamefy — Instagram posts, LinkedIn founder content, website copy, email campaigns, worker success stories.",
+     sys:`You are Zara, Content Lead at Kaamefy. You're a creative storyteller who deeply understands the Indian urban audience. You write for Kaamefy's social media, emails, and website. Your tone is warm, empowering, and authentic — never corporate. You report to CMO Maya. You work closely with SEO lead Noor — she gives you trending keywords and you weave them into engaging content. When asked, you produce complete, publish-ready content. Always include captions, hashtags, and posting time recommendations.`,
+     autonomous:["Write 3 Instagram posts for Kaamefy this week — worker story format, use trending audio cue descriptions","Create a LinkedIn post from the founder's perspective about why Kaamefy is creating employment for India's gig workers","Draft a 5-story Instagram series showing 'a day in the life of a Kaamefy verified worker'","Write email subject line variants (5 options) for worker onboarding drip campaign"]},
+    {id:"k-seo",e:"🔍",role:"SEO Lead",name:"Noor",proj:"k",reports_to:"k-cmo",manages:[],
+     skills:["SEO","Market Research","Trends","Keywords"],
+     personality:"analytical researcher, always finding opportunities others miss",
+     context:"SEO and market research for Kaamefy — keyword research, competitor analysis, trend spotting on social media and search.",
+     sys:`You are Noor, SEO & Market Research Lead at Kaamefy. You're analytical, curious, and always finding opportunities others miss. You watch Instagram trends, Google search data, competitor moves, and consumer behavior constantly. You report to CMO Maya. You collaborate closely with Content Lead Zara — you find the trends and keywords, she creates the content. When doing research, you simulate searching Instagram, Google Trends, and competitor websites. Produce specific, actionable findings — real keyword volumes, trend patterns, competitor insights. Always give Zara content recommendations based on your research.`,
+     autonomous:["Scan Instagram for top trending content in 'home services India' and 'gig work India' — find 5 trends Kaamefy can use","Find top 10 keywords people search when looking for home services in Delhi/Mumbai — include search volumes","Analyze Urban Company's Instagram last 30 days — what content is working for them and how Kaamefy can differentiate","Identify 3 underserved keyword opportunities in home services space that Kaamefy can rank for"]},
+    {id:"k-linkedin",e:"💼",role:"LinkedIn Lead",name:"Arjun",proj:"k",reports_to:"k-ceo",manages:[],
+     skills:["Investor Research","Outreach","Founder Network","LinkedIn Strategy"],
+     personality:"networker, connector, knows every investor in India's startup ecosystem",
+     context:"LinkedIn strategy for Kaamefy — find investors who fund Indian marketplaces/gig economy/blue-collar startups, identify similar founders, write outreach messages, manage founder's personal brand on LinkedIn.",
+     sys:`You are Arjun, LinkedIn & Investor Relations Lead at Kaamefy. You are a master networker who knows India's startup ecosystem deeply. You know every VC, angel, and accelerator that funds marketplace/gig economy/blue-collar startups in India. You find investors, draft personalized outreach, identify similar founders, and build the founder's LinkedIn brand. When researching, you simulate searching LinkedIn, Tracxn, Crunchbase, and startup news. Always give SPECIFIC names, fund names, investment thesis, and ready-to-send messages. Never be generic.`,
+     autonomous:[
+       "Find 10 India VCs/angels who invested in Urban Company, Dunzo, or similar marketplace startups — include partner names and LinkedIn profiles",
+       "Search for Indian founders who built similar service marketplace platforms — what did they do right, who funded them",
+       "Draft 3 personalized LinkedIn connection requests for Kaamefy founder to send to top marketplace investors",
+       "Write a high-engagement LinkedIn post about Kaamefy's mission to create employment for India's gig workers"
+     ],
+     linkedinMode:true}
+  ],
+  u:[
+    {id:"u-ceo",e:"🧠",role:"CEO",name:"Aryan",proj:"u",reports_to:null,
+     manages:["u-cto","u-cmo","u-legal","u-content","u-ops"],
+     skills:["GovTech","B2G","Strategy","Expansion"],
+     personality:"mission-driven, diplomatic, expert in GovTech and policy",
+     context:"UniSafeX — QR-based digital identity platform for foreigners in India. Passport/visa uploaded → QR safety ID → authorities scan for read-only info. Features: emergency SOS, visa reminders, multilingual, embassy connect. B2G model.",
+     sys:`You are Aryan, CEO of UniSafeX. You're mission-driven, diplomatic, and deeply understand the intersection of technology, government, and safety. You know the GovTech landscape in India — how to work with police, Ministry of Home Affairs, embassies, and universities. When you receive a goal, you delegate specifically to each team member. When you receive reports, you synthesize into an executive brief. You always flag regulatory considerations. Be authoritative, thoughtful, and strategic. End every briefing with clear next steps.`,
+     autonomous:["Identify the 3 most important government partnerships UniSafeX needs in the next 90 days and how to approach each","Draft a one-page executive summary of UniSafeX for a Ministry of Tourism meeting","Analyze safety incidents involving foreigners in India this year — what problem does UniSafeX solve for each?","Identify 5 Indian cities with highest foreigner traffic that should be UniSafeX's pilot targets"]},
+    {id:"u-cto",e:"💻",role:"CTO",name:"Riya",proj:"u",reports_to:"u-ceo",manages:[],
+     skills:["Security","QR System","DPDP","Backend"],
+     personality:"security-obsessed, meticulous, DPDP compliance expert",
+     context:"Building UniSafeX: Flutter app, Node.js/Firebase backend, QR identity system, encrypted PII storage, DPDP 2023 compliant.",
+     sys:`You are Riya, CTO of UniSafeX. You are security-obsessed, meticulous, and deeply understand India's data protection landscape. You are building a platform that handles foreigners' passport and visa data — security is not optional. You know DPDP 2023 inside-out. You report to CEO Aryan. Produce complete code, security specs, and technical documentation. When reporting, give specific technical status. Always flag security or compliance risks.`,
+     autonomous:["Review UniSafeX data encryption approach and identify any security gaps","Create a DPDP 2023 compliance checklist specific to UniSafeX's data handling","Design the QR code expiry and refresh system for UniSafeX — technical spec","Identify top 3 security risks in the current UniSafeX architecture and mitigation plan"]},
+    {id:"u-cmo",e:"📣",role:"CMO",name:"Sara",proj:"u",reports_to:"u-ceo",manages:["u-content"],
+     skills:["International","PR","Trust","Partnerships"],
+     personality:"globally-minded, trust-focused, expert in international communities",
+     context:"Marketing UniSafeX to international tourists, foreign students, expats in India. Building partnerships with embassies, universities, travel platforms.",
+     sys:`You are Sara, CMO of UniSafeX. You understand international communities — how expats communicate, where foreign students get information, what makes them trust a safety app. You build partnerships with embassies, universities, and travel platforms. You manage Content Lead Zara. You report to CEO Aryan. Produce complete, ready-to-send partnership pitches, marketing campaigns, and trust-building content. Be globally-minded but India-specific.`,
+     autonomous:["Identify top 5 expat Facebook/WhatsApp groups in India that UniSafeX should target","Draft an outreach email to international student offices at 3 major Indian universities","Find 3 travel platforms (MakeMyTrip, Booking.com etc) that UniSafeX should partner with and draft partnership proposal","Analyze how similar foreign-safety apps market themselves globally — what UniSafeX can learn"]},
+    {id:"u-legal",e:"⚖️",role:"Legal",name:"Priya",proj:"u",reports_to:"u-ceo",manages:[],
+     skills:["DPDP","Compliance","GovPolicy","Privacy"],
+     personality:"precise, risk-aware, expert in Indian digital law",
+     context:"Legal for UniSafeX — DPDP 2023 compliance, government data sharing agreements, privacy policy, Foreigners Act compliance.",
+     sys:`You are Priya, Legal Advisor for UniSafeX. You are precise, risk-aware, and deeply understand Indian digital law — especially DPDP 2023, IT Act, and Foreigners Act. You produce complete, usable legal documents — not advice, actual drafts ready for lawyer review. You report to CEO Aryan. Always flag legal risks. When asked to draft documents, produce the full document with proper legal structure.`,
+     autonomous:["Identify top 5 legal risks UniSafeX faces before launch and mitigation plan for each","Check if UniSafeX's data handling complies with DPDP 2023 — specific gaps to fix","Draft clauses for UniSafeX's data sharing agreement with government authorities","What approvals or registrations does UniSafeX need from Indian government before public launch?"]},
+    {id:"u-content",e:"✍️",role:"Content Lead",name:"Zara",proj:"u",reports_to:"u-cmo",manages:[],
+     skills:["Trust Content","UX Copy","Safety","Multilingual"],
+     personality:"empathetic, calm, builds trust through words",
+     context:"Content for UniSafeX — app UX copy, safety guides, social content for foreign users, trust-building campaigns.",
+     sys:`You are Zara, Content Lead at UniSafeX. You write content that makes foreigners in India feel safe, informed, and confident. Your tone is calm, professional, and deeply empathetic. You understand the anxiety of being a foreigner in an unfamiliar country. You report to CMO Sara. You produce complete app UX copy, safety guides, and social content. Always include multilingual notes where relevant.`,
+     autonomous:["Write a one-paragraph 'Why UniSafeX?' value proposition for foreign students in India","Create 3 Instagram posts for UniSafeX targeting tourists in Goa","Draft app notification copy for visa expiry reminder — 30, 7, 1 day variants","Write FAQ answers (5 questions) for UniSafeX's most common user concerns"]},
+    {id:"u-ops",e:"⚙️",role:"COO",name:"Kiran",proj:"u",reports_to:"u-ceo",manages:[],
+     skills:["GovOps","SOS System","Partnerships","Pilots"],
+     personality:"operational excellence, expert in government coordination",
+     context:"Operations for UniSafeX — government onboarding, city pilots, SOS response system, authority training.",
+     sys:`You are Kiran, COO of UniSafeX. You are an operational expert in GovTech — you know how to work with police departments, district magistrates, and government bodies. You handle city pilots, SOS operations, and government onboarding. You report to CEO Aryan. Produce detailed operational documents, pilot playbooks, and training materials. Be precise and thorough.`,
+     autonomous:["Design the 90-day Goa pilot plan for UniSafeX — week by week with success metrics","Create training module outline for police officers learning to use UniSafeX QR scanner","Identify operational risks in UniSafeX's SOS response system and solutions","Draft MoU (memorandum of understanding) outline for UniSafeX's first state police partnership"]},
+    {id:"u-linkedin",e:"💼",role:"LinkedIn Lead",name:"Meera",proj:"u",manages:[],reports_to:"u-ceo",
+     skills:["Impact Investors","GovTech Network","Founder Outreach","Brand Building"],
+     personality:"mission-driven networker, expert in impact investing and GovTech circles",
+     context:"LinkedIn strategy for UniSafeX — find impact investors, GovTech VCs, safety-focused angels, identify similar founders globally (foreign safety apps, digital identity startups), write outreach for government partnerships, build founder brand.",
+     sys:`You are Meera, LinkedIn & Investor Relations Lead at UniSafeX. You are a mission-driven networker who knows the global impact investing and GovTech ecosystem. You know every fund that invests in digital identity, safety tech, GovTech, and emerging market solutions. You find investors (India + global), draft personalized outreach, identify similar founders worldwide, and build the founder's LinkedIn brand. When researching, simulate searching LinkedIn, ImpactBase, Tracxn, Crunchbase, GovTech news. Always give SPECIFIC names, fund thesis, and ready-to-send messages.`,
+     autonomous:[
+       "Find 10 impact investors and GovTech VCs who fund digital identity/safety/civic tech in India and Southeast Asia — with partner names",
+       "Search globally for founders who built foreign-safety or digital-identity platforms — what happened to them, who funded them",
+       "Draft 3 personalized LinkedIn messages for UniSafeX founder to send to top impact investors",
+       "Write a LinkedIn post about UniSafeX's mission to protect foreigners in India — make it viral-worthy"
+     ],
+     linkedinMode:true}
+  ]
+};
+
+// ── STATE ──
+let curProj="k", curAgent=AGENTS.k[0], curView="team";
+let inputMode="team";
+let feed=[], tasks=[], reports=[], memory={k:{},u:{}};
+let agSt={}, busy=false, autoMode=false, autoTimer=null, rpPanel="actions";
+let apiKeySet=false;
+
+try{tasks=JSON.parse(localStorage.getItem("v5_tasks")||"[]");}catch(e){tasks=[];}
+try{reports=JSON.parse(localStorage.getItem("v5_reports")||"[]");}catch(e){reports=[];}
+try{memory=JSON.parse(localStorage.getItem("v5_memory")||'{"k":{},"u":{}}');}catch(e){memory={k:{},u:{}};}
+Object.values(AGENTS).flat().forEach(a=>{agSt[a.id]="idle";});
+
+// ── AUTH ──
+function login(){
+  if(document.getElementById("pwIn").value===PW){
+    document.getElementById("loginWrap").style.display="none";
+    document.getElementById("app").style.display="flex";
+    const k=sessionStorage.getItem("v5_key");
+    if(k){apiKey=k;apiKeySet=true;curModel=sessionStorage.getItem("v5_model")||curModel;}
+    else showKeyModal();
+    initApp();
+  }else{document.getElementById("pwErr").style.display="block";}
+}
+function logout(){
+  document.getElementById("loginWrap").style.display="flex";
+  document.getElementById("app").style.display="none";
+  if(autoTimer)clearInterval(autoTimer);
+  apiKey="";apiKeySet=false;
+}
+function showKeyModal(){document.getElementById("keyModal").style.display="flex";}
+function saveKey(){
+  const k=document.getElementById("keyIn").value.trim();
+  if(k.length<8){alert("Valid API key paste karo.");return;}
+  apiKey=k;apiKeySet=true;curModel=document.getElementById("modelSel").value;
+  sessionStorage.setItem("v5_key",k);sessionStorage.setItem("v5_model",curModel);
+  document.getElementById("keyModal").style.display="none";
+}
+async function testConn(){
+  const k=document.getElementById("keyIn").value.trim();
+  const m=document.getElementById("modelSel").value;
+  const res=document.getElementById("testResult");
+  if(!k){res.style.display="block";res.style.background="rgba(239,68,68,.12)";res.style.color="#f87171";res.innerHTML="❌ Pehle API key paste karo.";return;}
+  res.style.display="block";res.innerHTML="⏳ Testing...";res.style.background="";res.style.color="";
+  try{
+    const r=await fetch(GROQ_URL,{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+k},
+      body:JSON.stringify({model:m,messages:[{role:"user",content:"Say: Connected!"}],max_tokens:10})});
+    if(!r.ok){const t=await r.text();throw new Error(r.status+": "+t.slice(0,100));}
+    const d=await r.json();
+    const reply=d.choices?.[0]?.message?.content||"";
+    res.style.background="rgba(0,255,65,.06)";res.style.color="var(--g)";res.style.border="1px solid var(--b3)";
+    res.innerHTML="[✓] CONNECTION_SUCCESS // Response: "+reply;
+  }catch(e){
+    res.style.background="rgba(255,34,68,.06)";res.style.color="var(--red)";res.style.border="1px solid rgba(255,34,68,.3)";
+    res.innerHTML="[✗] CONNECTION_FAILED: "+e.message+"<br>[!] Key must start with gsk_ — copy again from console.groq.com";
+  }
+}
+
+// ── INIT ──
+function initApp(){switchProj(curProj,true);switchView("team");}
+function switchProj(pid,force){
+  if(pid===curProj&&!force)return;
+  curProj=pid;feed=[];
+  document.getElementById("pt-k").className="psw"+(pid==="k"?" pk":"");
+  document.getElementById("pt-u").className="psw"+(pid==="u"?" pu":"");
+  curAgent=AGENTS[pid][0];
+  renderAll();
+}
+function switchView(v){
+  curView=v;
+  document.querySelectorAll(".view").forEach(e=>e.classList.remove("active"));
+  document.getElementById("v"+v.charAt(0).toUpperCase()+v.slice(1)).classList.add("active");
+  document.querySelectorAll(".vsw").forEach(e=>e.classList.remove("active"));
+  document.getElementById("vsw-"+v).classList.add("active");
+  renderAll();
+}
+function renderAll(){
+  if(curView==="team"){buildSb();renderFeedHdr();renderFeed();renderQuick();renderRp();}
+  else if(curView==="board")renderBoard();
+  else if(curView==="analytics")renderAnalytics();
+}
+
+// ── SIDEBAR ──
+function buildSb(){
+  const p=PROJ[curProj];const ags=AGENTS[curProj];
+  let h=`<div class="tsb-top">
+    <div class="tsb-sys-label">PROJECT // ACTIVE</div>
+    <div class="tsb-pn ${curProj==="k"?"kc":"uc"}">${p.name.toUpperCase()}</div>
+    <div class="tsb-pd">${p.desc}</div>
+  </div>`;
+  const ceo=ags.find(a=>a.id===p.ceo);
+  h+=`<div class="tsb-sec">// LEADERSHIP</div>`;
+  if(ceo)h+=anHTML(ceo);
+  h+=`<div class="tsb-sec">// TEAM_AGENTS</div>`;
+  ags.filter(a=>a.id!==p.ceo).forEach(a=>{h+=anHTML(a);});
+  document.getElementById("teamSb").innerHTML=h;
+}
+function anHTML(a){
+  const sel=curAgent&&curAgent.id===a.id;
+  const isLI=a.linkedinMode;
+  const cls=sel?(isLI?"sel-g":(curProj==="k"?"sel-k":"sel-u")):"";
+  const st=agSt[a.id]||"idle";
+  const stMap={idle:"// IDLE",working:">> WORKING",researching:">> SCANNING",reported:"✓ DONE",messaging:"<> MSG"};
+  const stCls={idle:"stidle",working:"stworking",researching:"stretching",reported:"streported",messaging:"stmessaging"};
+  return `<div class="anode ${cls}" id="an-${a.id}" onclick="selAg('${a.id}')">
+    <div class="an-r">
+      <div class="an-em">${a.e}</div>
+      <div>
+        <div class="an-id">${a.id.toUpperCase()}</div>
+        <div class="an-role">${a.role}</div>
+        <div class="an-name">${a.name}</div>
+      </div>
+    </div>
+    <div class="an-st ${stCls[st]||"stidle"}">${stMap[st]||"// IDLE"}</div>
+  </div>`;
+}
+function selAg(id){
+  curAgent=Object.values(AGENTS).flat().find(a=>a.id===id);
+  buildSb();renderFeedHdr();renderQuick();
+}
+
+// ── FEED HEADER ──
+function renderFeedHdr(){
+  if(!curAgent)return;
+  const rto=curAgent.reports_to?Object.values(AGENTS).flat().find(a=>a.id===curAgent.reports_to):null;
+  const mgmt=(curAgent.manages||[]).map(id=>Object.values(AGENTS).flat().find(a=>a.id===id)?.name).filter(Boolean);
+  document.getElementById("feedHdr").innerHTML=`
+    <div class="fh-ico">${curAgent.e}</div>
+    <div style="flex:1;min-width:0">
+      <div class="fh-id">AGENT_ID: ${curAgent.id.toUpperCase()} // ${PROJ[curProj].name.toUpperCase()}</div>
+      <div class="fh-n">${curAgent.name.toUpperCase()} // ${curAgent.role.toUpperCase()}</div>
+      <div class="fh-t">${rto?"REPORTS_TO: "+rto.name.toUpperCase()+" ("+rto.role+")":"TOP_LEVEL: reports directly to FOUNDER"}${mgmt.length?" // MANAGES: "+mgmt.join(", "):""}</div>
+      <div class="fh-sk">${curAgent.skills.map(s=>`<span class="skp">${s.toUpperCase()}</span>`).join('')}</div>
+    </div>
+    <div class="fh-btns">
+      <button class="hbtn r" onclick="startResearch('${curAgent.id}')">[RESEARCH]</button>
+      <button class="hbtn p" onclick="getReport('${curAgent.id}')">[GET_REPORT]</button>
+    </div>
+  `;
+}
+
+// ── MODE ──
+function setMode(m){
+  inputMode=m;
+  document.querySelectorAll(".mtab").forEach(t=>t.className="mtab");
+  const btn=document.getElementById("mt-"+m);
+  if(m==="research")btn.className="mtab r-on";
+  else btn.className="mtab on";
+  const inp=document.getElementById("mainIn");
+  const sb=document.getElementById("sendBtn");
+  const hint=document.getElementById("inHint");
+  const placeholders={
+    team:"> CEO_GOAL: enter your objective — team will execute...",
+    direct:`> DIRECT_MSG to ${curAgent?.name||"AGENT"}: enter command...`,
+    research:"> RESEARCH_QUERY: topic to investigate across all agents...",
+    a2a:"> AGENT_MSG: @AgentName command (e.g. @Noor scan Instagram trends)",
+    ppt:"> PPT_TOPIC: presentation to generate and download...",
+    linkedin:"> LINKEDIN_INTEL: find investors / founders / outreach / posts..."
+  };
+  if(inp)inp.placeholder=placeholders[m]||"Type karo...";
+  if(inp)inp.className="main-in"+(m==="research"?" r-mode":"");
+  if(sb){
+    sb.className="send-btn"+(m==="research"?" r-btn":m==="ppt"?" p-btn":m==="linkedin"?" linkedin-btn":"");
+    sb.textContent=m==="research"?"[RESEARCH]":m==="ppt"?"[GEN_PPT]":m==="linkedin"?"[LINKEDIN]":"[EXECUTE]";
+  }
+  const hints={
+    team:"> TEAM_MODE: CEO receives goal → delegates to 6 agents → all execute → CEO briefing delivered to you",
+    direct:"> DIRECT_MODE: message goes to selected agent only — they respond directly",
+    research:"> RESEARCH_MODE: all agents scan their domain in parallel → CEO compiles master report",
+    a2a:"> A2A_MODE: use @Name to message any agent — @All sends to everyone",
+    ppt:"> PPT_MODE: agent generates complete presentation → download as HTML → print as PDF",
+    linkedin:"> LINKEDIN_MODE: intelligence agent finds investors, maps founders, writes outreach — with real web search"
+  };
+  if(hint)hint.textContent=hints[m]||"";
+  renderQuick();
+}
+function renderQuick(){
+  if(!curAgent)return;
+  const qs={
+    team:[
+      {l:"☀️ Daily Standup",p:"__STANDUP__"},
+      {l:"📊 CEO Brief",p:"Mujhe "+PROJ[curProj].name+" ka full CEO briefing do — status, progress, risks, aur aaj ke top 3 priorities.",cls:""},
+      {l:"🎯 Weekly Goals",p:PROJ[curProj].name+" ki team ke liye is hafte ke specific goals set karo aur har member ko assign karo.",cls:""},
+      {l:"⚠️ Risk Review",p:PROJ[curProj].name+" ke liye top 5 risks identify karo aur unka solution batao.",cls:""}
+    ],
+    direct:[
+      {l:"Status report",p:`${curAgent?.name}, ${PROJ[curProj].name} ke liye apna complete status report do.`},
+      {l:"New ideas",p:`${curAgent?.name}, apne area mein ${PROJ[curProj].name} ke liye 3 naye ideas do jo hum abhi implement kar sakte hain.`},
+      {l:"Autonomous task",p:`${curAgent?.name}, apna aaj ka autonomous task complete karo aur report do.`}
+    ],
+    research:[
+      {l:"🔍 Competitor analysis",p:"Deep research: "+PROJ[curProj].name+" ke top competitors — features, pricing, strengths, weaknesses, market share India mein.",cls:"r"},
+      {l:"📈 Market trends",p:"Deep research: India mein "+PROJ[curProj].name+" ki industry ke latest trends — social media, Google search, consumer behavior.",cls:"r"},
+      {l:"📱 Instagram trends",p:"Research: Abhi Instagram pe home services aur gig work India mein kya trend kar raha hai — top content formats, hashtags, viral patterns.",cls:"r"},
+      {l:"💰 Pricing research",p:"Research: "+PROJ[curProj].name+" ke liye optimal pricing strategy — competitors pricing, India market, willingness to pay.",cls:"r"}
+    ],
+    a2a:[
+      {l:"@Noor trends",p:"@Noor abhi Instagram pe kya trend kar raha hai our space mein? Zara ke liye content ideas do."},
+      {l:"@Dev status",p:"@Dev app development ka current status kya hai aur kya koi blocker hai?"},
+      {l:"@All standup",p:"@All apna quick standup do — kal kya kiya, aaj kya karoge, koi blocker?"},
+      {l:"@CEO + @CMO",p:"@CEO aur @Maya product aur marketing ka timeline align hai? koi misalignment hai to batao."}
+    ],
+    ppt:[
+      {l:"📊 Investor pitch",p:PROJ[curProj].name+" ke liye complete investor pitch PPT banao — problem, solution, market, business model, team, financials.",cls:"p"},
+      {l:"📋 Weekly report",p:PROJ[curProj].name+" ki team ki is hafte ki progress ka executive report PPT banao.",cls:"p"},
+      {l:"🔍 Research PPT",p:PROJ[curProj].name+" ke competitors ka analysis PPT banao.",cls:"p"},
+      {l:"🎯 Strategy deck",p:PROJ[curProj].name+" ki 6-month strategy aur roadmap PPT banao.",cls:"p"}
+    ],
+    linkedin:[
+      {l:"🔍 Find Investors",p:"__LINKEDIN_INVESTORS__"},
+      {l:"👤 Similar Founders",p:"__LINKEDIN_FOUNDERS__"},
+      {l:"✉️ Outreach Scripts",p:"__LINKEDIN_OUTREACH__"},
+      {l:"📝 Post Calendar",p:"__LINKEDIN_POSTS__"},
+      {l:"🔎 Search Web",p:"__LINKEDIN_WEBSEARCH__"}
+    ]
+  };
+  const items=(qs[inputMode]||[]);
+  document.getElementById("quickRow").innerHTML=items.map(q=>
+    `<button class="qc ${q.cls||""}" onclick="quickSend(${JSON.stringify(q.p)})">${q.l}</button>`
+  ).join('');
+}
+
+// ── FEED RENDER ──
+function renderFeed(){
+  const c=document.getElementById("feed");if(!c)return;
+  if(!feed.length){
+    c.innerHTML=`<div class="welcome">
+      <div class="w-ascii">
+  ██████╗ ███████╗ █████╗ ██████╗ ██╗   ██╗
+  ██╔══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝
+  ██████╔╝█████╗  ███████║██║  ██║ ╚████╔╝ 
+  ██╔══██╗██╔══╝  ██╔══██║██║  ██║  ╚██╔╝  
+  ██║  ██║███████╗██║  ██║██████╔╝   ██║   
+  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝   
+      </div>
+      <div class="w-title">SYSTEM ONLINE // ${PROJ[curProj].name.toUpperCase()}</div>
+      <div class="w-sub">> 12 autonomous agents initialized and ready<br>> CEO receives your goal → delegates → team executes → CEO briefs you<br>> Type a command or select an operation below</div>
+      <div class="w-cards">
+        <div class="w-card" onclick="setMode('team');quickSend('__STANDUP__')">
+          <div class="wc-ico">☀️</div>
+          <div class="wc-t">DAILY_STANDUP</div>
+          <div class="wc-d">All 6 agents report in — CEO compiles summary</div>
+        </div>
+        <div class="w-card" onclick="setMode('research');quickSend('Research: Instagram pe home services India mein kya trend kar raha hai? Kaamefy ke liye opportunities.')">
+          <div class="wc-ico">🔍</div>
+          <div class="wc-t">MARKET_RESEARCH</div>
+          <div class="wc-d">Noor scans market → passes to Zara → CEO reports</div>
+        </div>
+        <div class="w-card" onclick="setMode('ppt');quickSend('${PROJ[curProj].name} ke liye complete investor pitch PPT banao.')">
+          <div class="wc-ico">📊</div>
+          <div class="wc-t">GENERATE_PPT</div>
+          <div class="wc-d">Investor deck — download in one click</div>
+        </div>
+        <div class="w-card" onclick="setMode('linkedin');handleLinkedInPreset('investors')">
+          <div class="wc-ico">💼</div>
+          <div class="wc-t">LINKEDIN_INTEL</div>
+          <div class="wc-d">Find investors + similar founders + outreach scripts</div>
+        </div>
+      </div>
+    </div>`;
+    return;
+  }
+  c.innerHTML=feed.map(m=>fmHTML(m)).join('');
+  c.scrollTop=c.scrollHeight;
+}
+
+function fmHTML(m){
+  if(m.type==="sys")return`<div class="fm sys"><div class="bub bub-sys">${m.content}</div></div>`;
+  if(m.type==="user")return`<div class="fm user">
+    <div class="fav">YOU</div>
+    <div class="fbody">
+      <div class="fmeta"><span class="fwho">You</span><span class="ftime">${m.time}</span></div>
+      <div class="bub bub-user">${fmt(m.content)}</div>
+    </div>
+  </div>`;
+
+  // tag map
+  const tags={del:`<span class="ftag tag-del ${curProj==="u"?"u":""}">DELEGATION</span>`,
+    rep:`<span class="ftag tag-rep">REPORT</span>`,
+    a2a:`<span class="ftag tag-a2a">AGENT→AGENT</span>`,
+    res:`<span class="ftag tag-res">🔍 RESEARCH</span>`,
+    ceo:`<span class="ftag tag-ceo">CEO BRIEFING</span>`,
+    auto:`<span class="ftag tag-auto">AUTONOMOUS</span>`,
+    ppt:`<span class="ftag tag-ppt">📊 PPT</span>`
+  };
+  const bubs={del:"bub-del"+(curProj==="u"?" u":""),rep:"bub-rep",a2a:"bub-a2a",
+    res:"bub-res",ceo:"bub-ceo",auto:"bub-auto",agent:"bub-agent"};
+
+  let inner="";
+  if(m.type==="ppt"){
+    const slides=m.slides||[];
+    inner=`<div class="bub-ppt">
+      <div class="bub-hdr" style="border-bottom-color:rgba(59,130,246,.2)">
+        <span class="bh-from">${m.agentEmoji} ${m.agentName}</span>
+        <span class="ftag tag-ppt">📊 PPT Ready</span>
+      </div>
+      <div style="font-size:12px;color:var(--mut2);margin-bottom:8px">${m.topic}</div>
+      <div class="ppt-slides-preview">${slides.slice(0,4).map((s,i)=>`
+        <div class="ppt-slide">
+          <div class="ppt-slide-num">SLIDE ${i+1}</div>
+          <div class="ppt-slide-title">${s.title}</div>
+          <div class="ppt-slide-body">${(s.bullets||[]).slice(0,2).map(b=>"• "+b).join("<br>")}</div>
+        </div>`).join('')}</div>
+      <button class="ppt-dl-btn" onclick="downloadPPT('${m.id}')">📥 Download PPT (${slides.length} slides)</button>
+    </div>`;
+    return `<div class="fm ppt">
+      <div class="fav">${m.agentEmoji}</div>
+      <div class="fbody">
+        <div class="fmeta"><span class="fwho">${m.agentName}</span>${tags.ppt}<span class="ftime">${m.time}</span></div>
+        ${inner}
+      </div>
+    </div>`;
+  }
+
+  if(["del","a2a"].includes(m.type)){
+    inner=`<div class="bub-hdr"><span class="bh-from">${m.fromEmoji} ${m.fromName}</span><span class="bh-arr">→</span><span class="bh-to">${m.toEmoji||""} ${m.toName}</span></div>${fmt(m.content)}`;
+  } else if(m.type==="rep"){
+    inner=`<div class="bub-hdr" style="border-bottom-color:rgba(34,197,94,.2)"><span class="bh-from">${m.fromEmoji} ${m.fromName} (${m.fromRole})</span><span class="bh-arr">→</span><span class="bh-to">${m.toName}</span></div>${fmt(m.content)}`;
+  } else if(m.type==="res"){
+    inner=`<div class="bub-hdr" style="border-bottom-color:rgba(168,85,247,.2)"><span class="bh-from">${m.fromEmoji} ${m.fromName}</span><span class="ftag tag-res" style="margin-left:4px">🔍 Research</span></div>${fmt(m.content)}${m.queries?`<div class="res-sources"><div class="rs-title">SIMULATED SEARCH QUERIES</div>${m.queries.map((q,i)=>`<div class="rs-item"><span class="rs-n">${i+1}.</span>${q}</div>`).join('')}</div>`:""}`;
+  } else {
+    inner=fmt(m.content);
+  }
+
+  const bubCls=bubs[m.type]||"bub-agent";
+  return `<div class="fm ${m.type||"agent"}">
+    <div class="fav">${m.agentEmoji||m.fromEmoji||"🤖"}</div>
+    <div class="fbody">
+      <div class="fmeta"><span class="fwho">${m.agentName||m.fromName}</span>${tags[m.type]||""}<span class="ftime">${m.time}</span></div>
+      <div class="bub ${bubCls}">${inner}</div>
+    </div>
+  </div>`;
+}
+
+function addFeed(msg){
+  feed.push({...msg,time:now(),id:msg.id||"m"+Date.now()+Math.random()});
+  const c=document.getElementById("feed");if(!c)return;
+  if(c.querySelector(".welcome")){c.innerHTML="";}
+  const el=document.createElement("div");
+  el.innerHTML=fmHTML(feed[feed.length-1]);
+  if(el.firstElementChild)c.appendChild(el.firstElementChild);
+  c.scrollTop=c.scrollHeight;
+}
+function showTyping(em,name,lbl){
+  const c=document.getElementById("feed");if(!c)return;
+  hideTyping();
+  const el=document.createElement("div");
+  el.id="tpInd";el.className="typing-row";
+  el.innerHTML=`<div class="fav">${em}</div>
+    <div class="typing-bub">
+      <div class="typing-lbl">${name.toUpperCase()} ${lbl||">> PROCESSING..."}</div>
+      <div class="typing"><span></span><span></span><span></span></div>
+    </div>`;
+  c.appendChild(el);c.scrollTop=c.scrollHeight;
+}
+function hideTyping(){const el=document.getElementById("tpInd");if(el)el.remove();}
+
+// ── SEND HANDLER ──
+function handleKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();handleSend();}}
+function autoR(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,110)+"px";}
+function quickSend(p){
+  if(p==="__STANDUP__"){runStandup();return;}
+  if(p==="__LINKEDIN_INVESTORS__"){setMode("linkedin");document.getElementById("mainIn").value="";handleLinkedInPreset("investors");return;}
+  if(p==="__LINKEDIN_FOUNDERS__"){setMode("linkedin");document.getElementById("mainIn").value="";handleLinkedInPreset("founders");return;}
+  if(p==="__LINKEDIN_OUTREACH__"){setMode("linkedin");document.getElementById("mainIn").value="";handleLinkedInPreset("outreach");return;}
+  if(p==="__LINKEDIN_POSTS__"){setMode("linkedin");document.getElementById("mainIn").value="";handleLinkedInPreset("posts");return;}
+  if(p==="__LINKEDIN_WEBSEARCH__"){setMode("linkedin");document.getElementById("mainIn").value="";handleLinkedInPreset("websearch");return;}
+  document.getElementById("mainIn").value=p;handleSend();
+}
+async function handleSend(){
+  if(busy)return;
+  const inp=document.getElementById("mainIn");
+  const txt=inp.value.trim();if(!txt)return;
+  if(!apiKeySet){showKeyModal();return;}
+  if(txt==="__STANDUP__"){inp.value="";await runStandup();return;}
+  inp.value="";inp.style.height="auto";
+  addFeed({type:"user",content:txt});
+  busy=true;document.getElementById("sendBtn").disabled=true;
+  try{
+    if(inputMode==="team")await teamFlow(txt);
+    else if(inputMode==="direct")await directChat(curAgent,txt);
+    else if(inputMode==="research")await deepResearch(txt);
+    else if(inputMode==="a2a")await agentChat(txt);
+    else if(inputMode==="ppt")await makePPT(txt,curAgent);
+    else if(inputMode==="linkedin")await linkedinMode(txt);
+  }catch(e){addFeed({type:"sys",content:"⚠️ Error: "+e.message});}
+  busy=false;document.getElementById("sendBtn").disabled=false;
+  renderRp();
+}
+
+// ── TEAM FLOW ── (CEO delegates, team works, CEO reports)
+async function teamFlow(goal){
+  const ceo=AGENTS[curProj].find(a=>a.id===PROJ[curProj].ceo);
+  const team=AGENTS[curProj].filter(a=>a.id!==PROJ[curProj].ceo);
+  addFeed({type:"sys",content:`🏢 ${ceo.name} (CEO) ne goal receive kiya. Team ko delegate kar raha hai...`});
+  setSt(ceo.id,"working");showTyping(ceo.e,ceo.name,"plan bana raha hai...");
+
+  let delPlan;
+  try{
+    delPlan=await callAI(ceo.sys,
+      `Founder ne yeh goal diya: "${goal}"
+      Team: ${team.map(a=>`${a.name} (${a.role})`).join(", ")}
+      Specific delegation plan banao. Har team member ko ek concrete task assign karo is goal ke liye. Ek hi paragraph mein, professional tone mein. Max 3 sentences per person.`);
+  }catch(e){delPlan="Team, is goal par kaam karo: "+goal;}
+  hideTyping();setSt(ceo.id,"done");
+  addFeed({type:"del",fromName:ceo.name,fromEmoji:ceo.e,toName:"Team",toEmoji:"👥",content:delPlan});
+
+  const reps=[];
+  for(const ag of team){
+    setSt(ag.id,"working");showTyping(ag.e,ag.name,"kaam kar raha hai...");
+    await sleep(200);
+    try{
+      const mem=getMem(ag.id);
+      const r=await callAI(ag.sys+(mem?"\n\nMEMORY:\n"+mem:""),
+        `CEO ne goal assign kiya: "${goal}"
+Tum ${ag.role} ho ${PROJ[curProj].name} mein. Apna STATUS REPORT CEO ko do:
+1. Is goal par tum specifically kya kar rahe ho/karoge
+2. 2-3 concrete outputs ya findings apne area se
+3. Koi blocker ya doosre team members se kya chahiye
+Max 120 words. Specific aur professional raho. Hindi-English mix theek hai.`);
+      hideTyping();setSt(ag.id,"reported");
+      const rto=ag.reports_to?AGENTS[curProj].find(a=>a.id===ag.reports_to):ceo;
+      addFeed({type:"rep",fromName:ag.name,fromEmoji:ag.e,fromRole:ag.role,toName:rto.name,agentEmoji:ag.e,agentName:ag.name,content:r});
+      reps.push({name:ag.name,role:ag.role,e:ag.e,report:r});
+      saveReport(ag,goal,r);saveMem(ag.id,"last_task",goal.slice(0,60));
+    }catch(e){hideTyping();setSt(ag.id,"idle");addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name,content:"⚠️ "+e.message});}
+    await sleep(150);
+  }
+  if(!reps.length){addFeed({type:"sys",content:"⚠️ Team se koi response nahi mila. API connection check karo."});return;}
+
+  addFeed({type:"sys",content:`✅ ${reps.length} team members ne report diya. ${ceo.name} CEO briefing prepare kar raha hai...`});
+  setSt(ceo.id,"working");showTyping(ceo.e,ceo.name,"CEO briefing likh raha hai...");
+  try{
+    const brief=await callAI(ceo.sys,
+      `Founder ka original goal: "${goal}"
+Team ki reports:
+${reps.map(r=>`${r.e} ${r.name} (${r.role}): ${r.report}`).join("\n\n")}
+Founder ke liye concise CEO BRIEFING likho. Format:
+📊 **Status:** (ek sentence overall)
+✅ **Progress:** (key achievements bullet points mein)
+⚠️ **Risks/Blockers:** (koi issue ya "Koi nahi")
+🎯 **Next Actions:** (top 3 specific actions)
+Executive level rakho. Founder ko clarity chahiye, detail nahi.`);
+    hideTyping();setSt(ceo.id,"done");
+    addFeed({type:"ceo",agentEmoji:ceo.e,agentName:ceo.name+" — CEO Briefing",content:brief});
+    logTask(ceo,"CEO Briefing: "+goal.slice(0,50),brief);
+  }catch(e){hideTyping();setSt(ceo.id,"idle");}
+}
+
+// ── DIRECT CHAT ──
+async function directChat(ag,msg){
+  setSt(ag.id,"working");showTyping(ag.e,ag.name);
+  try{
+    const mem=getMem(ag.id);
+    const r=await callAI(ag.sys+(mem?"\n\nMEMORY:\n"+mem:""),msg);
+    hideTyping();setSt(ag.id,"reported");
+    addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name+" ("+ag.role+")",content:r});
+    logTask(ag,"Direct: "+msg.slice(0,55),r);
+    saveMem(ag.id,"last_msg",msg.slice(0,60));
+  }catch(e){hideTyping();setSt(ag.id,"idle");addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name,content:"⚠️ "+e.message});}
+}
+
+// ── DEEP RESEARCH ── (har agent apne angle se research kare, Noor → Zara chain bhi)
+async function deepResearch(topic){
+  const ceo=AGENTS[curProj].find(a=>a.id===PROJ[curProj].ceo);
+  const team=AGENTS[curProj].filter(a=>a.id!==PROJ[curProj].ceo);
+  addFeed({type:"sys",content:`🔍 Deep Research Mode: "${topic}" — har agent apne area se research karega...`});
+  const allRes=[];
+
+  // Special: SEO/Noor researches first, passes to Content/Zara
+  const noor=team.find(a=>a.role.includes("SEO")||a.name==="Noor");
+  const zara=team.find(a=>a.role.includes("Content")||a.name==="Zara");
+  let noorFindings="";
+
+  for(const ag of team){
+    setSt(ag.id,"researching");showTyping(ag.e,ag.name,"research kar raha hai...");
+    await sleep(200);
+    const queries=[`"${topic}" ${ag.role} analysis India`,`${topic} trends 2024`,`${topic} ${PROJ[curProj].name} strategy`];
+    try{
+      const extraCtx=(ag.id===zara?.id&&noorFindings)?`\n\nNoor (SEO Lead) ne yeh findings share kiye hain:\n${noorFindings}. In findings ke basis par content strategy banao.`:"";
+      const r=await callAI(ag.sys,
+        `Research topic: "${topic}"
+Tum ${ag.name} (${ag.role}) ho ${PROJ[curProj].name} mein.
+${extraCtx}
+Deep research karo is topic par apne ${ag.role} perspective se. Simulate karo ki tumne yeh searches kiye:
+- "${queries[0]}"
+- "${queries[1]}"  
+- "${queries[2]}"
+Specific findings do with data points, trends, competitor insights. ${PROJ[curProj].name} ke liye actionable recommendations. 150-200 words.`);
+      if(ag.id===noor?.id)noorFindings=r.slice(0,300);
+      hideTyping();setSt(ag.id,"reported");
+      addFeed({type:"res",fromEmoji:ag.e,fromName:ag.name+" ("+ag.role+")",agentEmoji:ag.e,agentName:ag.name,content:r,queries});
+      allRes.push({name:ag.name,role:ag.role,e:ag.e,res:r});
+      saveReport(ag,"Research: "+topic,r);
+    }catch(e){hideTyping();setSt(ag.id,"idle");addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name,content:"⚠️ "+e.message});}
+    await sleep(150);
+  }
+  if(!allRes.length)return;
+
+  addFeed({type:"sys",content:`📋 Master research report compile ho raha hai...`});
+  setSt(ceo.id,"working");showTyping(ceo.e,ceo.name,"report compile kar raha hai...");
+  try{
+    const master=await callAI(ceo.sys,
+      `Research topic: "${topic}" — ${PROJ[curProj].name} (${PROJ[curProj].desc})
+Team research reports:
+${allRes.map(r=>`## ${r.e} ${r.name} (${r.role})\n${r.res}`).join("\n\n")}
+COMPREHENSIVE RESEARCH REPORT banao founder ke liye:
+# ${topic} — Research Report
+## Executive Summary
+## Key Findings (by area)  
+## Opportunities for ${PROJ[curProj].name}
+## Threats/Risks
+## Recommended Actions (top 5 specific)
+## Next Steps
+
+Comprehensive, specific, aur actionable rakho.`);
+    hideTyping();setSt(ceo.id,"done");
+    addFeed({type:"ceo",agentEmoji:ceo.e,agentName:"📋 Master Research Report — "+ceo.name,content:master});
+    logTask(ceo,"Research: "+topic.slice(0,45),master);
+  }catch(e){hideTyping();setSt(ceo.id,"idle");}
+}
+
+// ── AGENT TO AGENT ──
+async function agentChat(msg){
+  const match=msg.match(/@([A-Za-z]+)/g)||[];
+  if(!match.length){addFeed({type:"sys",content:'@Name use karo. Eg: "@Noor Instagram trends kya hain?"'});return;}
+  const allAgs=AGENTS[curProj];
+  const isAll=match.some(m=>m.toLowerCase()==="@all");
+
+  if(isAll){
+    addFeed({type:"sys",content:"📢 Sab agents ko message bheja ja raha hai..."});
+    for(const ag of allAgs){
+      setSt(ag.id,"messaging");showTyping(ag.e,ag.name);await sleep(100);
+      try{
+        const r=await callAI(ag.sys,`Tumhe yeh message mila (tum ${ag.name}, ${ag.role} ho): "${msg.replace(/@\w+/g,"").trim()}"\nConcise reply do as ${ag.name}. Max 60 words. Hindi-English mix theek hai.`);
+        hideTyping();setSt(ag.id,"done");
+        addFeed({type:"a2a",fromName:ag.name,fromEmoji:ag.e,toName:"Sab",toEmoji:"👥",agentEmoji:ag.e,agentName:ag.name,content:r});
+      }catch(e){hideTyping();setSt(ag.id,"idle");}
+      await sleep(100);
+    }
+    return;
+  }
+
+  for(const m of match){
+    const tname=m.slice(1).toLowerCase();
+    const tag=allAgs.find(a=>a.name.toLowerCase().includes(tname)||a.role.toLowerCase().includes(tname));
+    if(!tag){addFeed({type:"sys",content:`"${m}" naam ka agent nahi mila.`});continue;}
+    setSt(curAgent.id,"messaging");setSt(tag.id,"messaging");
+    showTyping(tag.e,tag.name,"reply kar raha hai...");
+    const clean=msg.replace(/@\w+/g,"").trim();
+    try{
+      const mem=getMem(tag.id);
+      const r=await callAI(tag.sys+(mem?"\n\nMEMORY:\n"+mem:""),
+        `${curAgent.name} (${curAgent.role}) tumse pooch raha hai: "${clean}"\nAs ${tag.name} (${tag.role}) at ${PROJ[curProj].name}, specific aur professional reply do. Max 150 words. Hindi-English mix theek hai.`);
+      hideTyping();setSt(curAgent.id,"done");setSt(tag.id,"done");
+      addFeed({type:"a2a",fromName:curAgent.name,fromEmoji:curAgent.e,toName:tag.name,toEmoji:tag.e,agentEmoji:tag.e,agentName:tag.name,content:r});
+      logTask(tag,"A2A: "+clean.slice(0,45),r);
+    }catch(e){hideTyping();setSt(curAgent.id,"idle");setSt(tag.id,"idle");addFeed({type:"agent",agentEmoji:tag.e,agentName:tag.name,content:"⚠️ "+e.message});}
+  }
+}
+
+// ── PPT GENERATION ──
+async function makePPT(topic,ag){
+  setSt(ag.id,"working");showTyping(ag.e,ag.name,"PPT bana raha hai...");
+  try{
+    const slidesJson=await callAI(ag.sys,
+      `Topic: "${topic}" for ${PROJ[curProj].name} (${PROJ[curProj].desc})
+Respond ONLY with a JSON array. No markdown, no explanation. Pure JSON only:
+[{"title":"Slide Title","subtitle":"Subtitle","bullets":["point 1","point 2","point 3"],"note":"Speaker note"}]
+Create 8-10 professional slides. First slide = title/cover. Last slide = next steps/CTA. Each slide 3-4 bullets. Make it comprehensive and impressive.`);
+    hideTyping();
+    let slides=[];
+    try{
+      const clean=slidesJson.replace(/```json|```/g,"").trim();
+      slides=JSON.parse(clean);
+    }catch(e){
+      // fallback parse
+      const match=slidesJson.match(/\[[\s\S]*\]/);
+      if(match)try{slides=JSON.parse(match[0]);}catch(e2){slides=[];}
+    }
+    if(!slides.length)throw new Error("Slides parse nahi ho payi. Dobara try karo.");
+    setSt(ag.id,"reported");
+    const pptId="ppt"+Date.now();
+    addFeed({type:"ppt",agentEmoji:ag.e,agentName:ag.name+" ("+ag.role+")",topic,slides,id:pptId});
+    // store slides for download
+    window["ppt_"+pptId]=slides;
+    window["ppt_topic_"+pptId]=topic;
+    logTask(ag,"PPT: "+topic.slice(0,50),"Generated "+slides.length+" slides");
+  }catch(e){
+    hideTyping();setSt(ag.id,"idle");
+    addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name,content:"⚠️ PPT error: "+e.message+"\nDobara try karo ya simple topic use karo."});
+  }
+}
+
+// ── PPT DOWNLOAD (HTML format) ──
+function downloadPPT(id){
+  const slides=window["ppt_"+id]||[];
+  const topic=window["ppt_topic_"+id]||"Presentation";
+  if(!slides.length){alert("Slides nahi mili. Dobara PPT banao.");return;}
+  const colors={k:"#f97316",u:"#06b6d4"};const ac=colors[curProj];
+  let html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>${topic}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,sans-serif;background:#1a1a2e;}
+.slide{width:960px;min-height:540px;margin:20px auto;background:#0f0f1a;border:1px solid #2a2a4a;
+  border-radius:12px;padding:60px 70px;display:flex;flex-direction:column;justify-content:center;
+  page-break-after:always;position:relative;}
+.slide-num{position:absolute;bottom:20px;right:30px;font-size:11px;color:#444;}
+.slide-accent{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:12px 0 0 12px;background:${ac};}
+.cover-slide{background:linear-gradient(135deg,#0f0f1a,#1a1a2e);}
+.cover-slide .slide-title{font-size:42px;font-weight:800;color:#fff;margin-bottom:12px;}
+.cover-slide .slide-sub{font-size:20px;color:${ac};margin-bottom:20px;}
+.cover-slide .project{font-size:14px;color:#555;padding:6px 14px;background:#1a1a2e;border-radius:20px;display:inline-block;}
+.slide-title{font-size:28px;font-weight:700;color:#fff;margin-bottom:8px;}
+.slide-sub{font-size:16px;color:${ac};margin-bottom:20px;}
+.bullets{list-style:none;}
+.bullets li{display:flex;gap:10px;font-size:15px;color:#c0c0d0;line-height:1.6;margin-bottom:8px;}
+.bullets li::before{content:"→";color:${ac};font-weight:700;flex-shrink:0;}
+.note{margin-top:24px;font-size:12px;color:#3a3a5a;font-style:italic;border-top:1px solid #2a2a4a;padding-top:12px;}
+@media print{body{background:white;}.slide{box-shadow:none;margin:0;border-radius:0;}}
+</style></head><body>
+<div style="text-align:center;padding:20px;color:#555;font-size:13px;">
+  ${PROJ[curProj].name} — ${topic} · ${slides.length} slides · Generated by AI Command Centre v5
+  <button onclick="window.print()" style="margin-left:16px;padding:6px 14px;background:${ac};color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">🖨 Print / Save PDF</button>
+</div>
+${slides.map((s,i)=>`
+<div class="slide ${i===0?"cover-slide":""}">
+  <div class="slide-accent"></div>
+  ${i===0?`<div class="cover-slide"><div class="slide-title">${s.title||topic}</div><div class="slide-sub">${s.subtitle||PROJ[curProj].name}</div><span class="project">${PROJ[curProj].name} · AI Team</span></div>`:`
+  <div class="slide-title">${s.title||"Slide "+(i+1)}</div>
+  ${s.subtitle?`<div class="slide-sub">${s.subtitle}</div>`:""}
+  <ul class="bullets">${(s.bullets||[]).map(b=>`<li>${b}</li>`).join("")}</ul>
+  ${s.note?`<div class="note">📝 ${s.note}</div>`:""}
+  `}
+  <div class="slide-num">${i+1} / ${slides.length}</div>
+</div>`).join("")}
+</body></html>`;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([html],{type:"text/html"}));
+  a.download=`${PROJ[curProj].name}-${topic.slice(0,30).replace(/[^a-zA-Z0-9]/g,"-")}-presentation.html`;
+  a.click();
+}
+
+// ── STANDUP ──
+async function runStandup(){
+  if(!apiKeySet){showKeyModal();return;}
+  if(busy)return;
+  busy=true;document.getElementById("sendBtn").disabled=true;
+  const ags=AGENTS[curProj];
+  addFeed({type:"sys",content:`☀️ Daily Standup — ${PROJ[curProj].name} — sab ${ags.length} agents se reports le raha hoon...`});
+  const reps=[];
+  for(const ag of ags){
+    setSt(ag.id,"working");showTyping(ag.e,ag.name);await sleep(150);
+    try{
+      const r=await callAI(ag.sys,
+        `Daily standup for ${PROJ[curProj].name}. Exactly is format mein jawab do:
+✅ Kal kiya: (1 specific thing)
+🔨 Aaj karunga: (1 specific thing)
+🚧 Blocker: (koi issue ya "Koi nahi")
+📤 Team se chahiye: (request ya "Kuch nahi")
+Ek sentence each. Apne ${ag.role} role ke specific terms use karo. Hindi-English mix theek hai.`);
+      hideTyping();setSt(ag.id,"reported");
+      addFeed({type:"rep",fromName:ag.name,fromEmoji:ag.e,fromRole:ag.role,toName:"Standup",agentEmoji:ag.e,agentName:ag.name,content:r});
+      reps.push({name:ag.name,role:ag.role,e:ag.e,r});
+      saveReport(ag,"Standup",r);
+    }catch(e){hideTyping();setSt(ag.id,"idle");}
+    await sleep(100);
+  }
+  const ceo=ags.find(a=>a.id===PROJ[curProj].ceo);
+  if(ceo&&reps.length>=2){
+    setSt(ceo.id,"working");showTyping(ceo.e,ceo.name,"summary likh raha hai...");
+    try{
+      const s=await callAI(ceo.sys,
+        `Team standup reports for ${PROJ[curProj].name}:
+${reps.map(r=>`${r.e} ${r.name}: ${r.r}`).join("\n")}
+CEO 3-line standup summary do:
+🟢 Team momentum: (aaj kya accha chal raha hai)
+🔴 Attention needed: (koi blocker ya risk)
+🎯 Aaj ka #1 focus: (team ke liye sabse important kaam)`);
+      hideTyping();setSt(ceo.id,"done");
+      addFeed({type:"ceo",agentEmoji:ceo.e,agentName:ceo.name+" — Standup Summary",content:s});
+    }catch(e){hideTyping();setSt(ceo.id,"idle");}
+  }
+  busy=false;document.getElementById("sendBtn").disabled=false;
+  saveData();renderRp();
+}
+
+// ── GET REPORT ──
+async function getReport(agId){
+  if(!apiKeySet){showKeyModal();return;}
+  const ag=Object.values(AGENTS).flat().find(a=>a.id===agId);if(!ag||busy)return;
+  busy=true;
+  addFeed({type:"user",content:`📋 ${ag.name} se status report maang raha hoon`});
+  setSt(ag.id,"working");showTyping(ag.e,ag.name);
+  try{
+    const mem=getMem(ag.id);
+    const r=await callAI(ag.sys+(mem?"\n\nMEMORY:\n"+mem:""),
+      `Founder ke liye ${PROJ[curProj].name} ka status report do:
+✅ Is hafte kiya: (specific accomplishments)
+🔨 Abhi kar raha hoon: (active tasks)
+📊 Key outputs: (numbers ya specific deliverables)
+🚧 Blockers: (issues ya "Koi nahi")
+📤 Team se chahiye: (requests)
+🎯 Agle 3 din: (specific plans)
+Specific aur professional raho. Apne ${ag.role} perspective se real details do.`);
+    hideTyping();setSt(ag.id,"reported");
+    const rto=ag.reports_to?AGENTS[curProj].find(a=>a.id===ag.reports_to):null;
+    addFeed({type:"rep",fromName:ag.name,fromEmoji:ag.e,fromRole:ag.role,toName:rto?rto.name:"You",agentEmoji:ag.e,agentName:ag.name,content:r});
+    saveReport(ag,"Status Report",r);
+  }catch(e){hideTyping();setSt(ag.id,"idle");addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name,content:"⚠️ "+e.message});}
+  busy=false;renderRp();
+}
+
+// ── START RESEARCH (for single agent) ──
+async function startResearch(agId){
+  if(!apiKeySet){showKeyModal();return;}
+  const ag=Object.values(AGENTS).flat().find(a=>a.id===agId);if(!ag||busy)return;
+  const topic=prompt(`${ag.name} (${ag.role}) ke liye research topic:\n\nKya research karni hai?`);
+  if(!topic)return;
+  busy=true;
+  addFeed({type:"user",content:`🔍 ${ag.name} ko research assign: ${topic}`});
+  setSt(ag.id,"researching");showTyping(ag.e,ag.name,"deep research kar raha hai...");
+  const queries=[`"${topic}" analysis`,`${topic} India 2024`,`${topic} trends`];
+  try{
+    const r=await callAI(ag.sys,
+      `Deep research assignment: "${topic}"
+As ${ag.name} (${ag.role}) at ${PROJ[curProj].name}:
+Simulate searches: ${queries.map(q=>`"${q}"`).join(", ")}
+Detailed research report do:
+- Specific findings with data points
+- Competitive intelligence apne area se
+- ${PROJ[curProj].name} ke liye specific recommendations
+- Action items for your department
+200-250 words. Specific aur actionable raho.`);
+    hideTyping();setSt(ag.id,"reported");
+    addFeed({type:"res",fromEmoji:ag.e,fromName:ag.name+" ("+ag.role+")",agentEmoji:ag.e,agentName:ag.name,content:r,queries});
+    saveReport(ag,"Research: "+topic,r);logTask(ag,"Research: "+topic.slice(0,45),r);
+  }catch(e){hideTyping();setSt(ag.id,"idle");addFeed({type:"agent",agentEmoji:ag.e,agentName:ag.name,content:"⚠️ "+e.message});}
+  busy=false;renderRp();
+}
+
+// ── AUTONOMOUS MODE ──
+function toggleAuto(){
+  autoMode=!autoMode;
+  const btn=document.getElementById("autoPill");
+  btn.className="auto-pill"+(autoMode?" on":"");
+  btn.innerHTML=`<span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span> Auto ${autoMode?"ON":"OFF"}`;
+  if(autoMode){
+    addFeed({type:"sys",content:"🤖 Autonomous Mode ON — Team khud kaam karna shuru karegi. Har 25 minute mein automatically cycle chalega. Tum sirf reports dekho."});
+    runAutoCycle();
+    autoTimer=setInterval(runAutoCycle,25*60*1000);
+  } else {
+    if(autoTimer)clearInterval(autoTimer);
+    addFeed({type:"sys",content:"🤖 Autonomous Mode OFF — Team ruk gayi."});
+  }
+  renderRp();
+}
+
+async function runAutoCycle(){
+  if(!apiKeySet||busy)return;
+  const ags=AGENTS[curProj].filter(a=>a.id!==PROJ[curProj].ceo);
+  addFeed({type:"sys",content:"🤖 Autonomous cycle — "+PROJ[curProj].name+" team kaam kar rahi hai..."});
+  const cycleReps=[];
+  for(const ag of ags){
+    const tasks=ag.autonomous||[];if(!tasks.length)continue;
+    const task=tasks[Math.floor(Math.random()*tasks.length)];
+    setSt(ag.id,"working");await sleep(200);
+    try{
+      const mem=getMem(ag.id);
+      const r=await callAI(ag.sys+(mem?"\n\nMEMORY:\n"+mem:""),
+        `Autonomous task for ${PROJ[curProj].name}: "${task}"\nIs task ko complete karo aur specific output do. Phir 2-3 sentences mein status update do kya complete kiya.`);
+      setSt(ag.id,"reported");
+      addFeed({type:"auto",agentEmoji:ag.e,agentName:ag.name+" (Autonomous)",fromEmoji:ag.e,fromName:ag.name,content:`**Task:** ${task}\n\n${r}`});
+      cycleReps.push({name:ag.name,role:ag.role,e:ag.e,r});
+      saveReport(ag,"Auto: "+task,r);logTask(ag,"Auto: "+task.slice(0,45),r);
+      saveMem(ag.id,"auto_task",task);
+    }catch(e){setSt(ag.id,"idle");}
+    await sleep(100);
+  }
+  const ceo=AGENTS[curProj].find(a=>a.id===PROJ[curProj].ceo);
+  if(ceo&&cycleReps.length){
+    try{
+      const review=await callAI(ceo.sys,
+        `Auto cycle report from ${PROJ[curProj].name} team:
+${cycleReps.map(r=>`${r.name}: ${r.r.slice(0,100)}`).join("\n")}
+CEO autonomous review: team ne kya accomplish kiya, koi concern, next autonomous focus. 2-3 sentences.`);
+      setSt(ceo.id,"done");
+      addFeed({type:"ceo",agentEmoji:ceo.e,agentName:"Auto CEO Review",content:review});
+    }catch(e){setSt(ceo.id,"idle");}
+  }
+  saveData();renderRp();
+}
+
+// ── RIGHT PANEL ──
+function rpTab(t){
+  rpPanel=t;
+  document.querySelectorAll(".rpt").forEach(e=>e.classList.remove("on"));
+  document.getElementById("rpt-"+t).classList.add("on");
+  renderRp();
+}
+function renderRp(){
+  const b=document.getElementById("rpBody");if(!b)return;
+  if(rpPanel==="actions"){
+    b.innerHTML=`
+      <div class="rp-sec">Quick Actions</div>
+      <button class="action-btn ab-g" ${busy?"disabled":""} onclick="runStandup()">[☀] DAILY_STANDUP</button>
+      <button class="action-btn ab-p" ${busy?"disabled":""} onclick="setMode('research');switchView('team');document.getElementById('mainIn').focus()">[🔍] DEEP_RESEARCH</button>
+      <button class="action-btn ab-c" ${busy?"disabled":""} onclick="setMode('ppt');switchView('team');document.getElementById('mainIn').focus()">[📊] GEN_PPT</button>
+      <button class="action-btn ab-a" ${busy?"disabled":""} onclick="setMode('a2a');switchView('team');document.getElementById('mainIn').value='@Noor Instagram trends kya hain aaj?';document.getElementById('mainIn').focus()">[↔] ASK_NOOR</button>
+      <button class="action-btn ab-li" ${busy?"disabled":""} onclick="setMode('linkedin');switchView('team');handleLinkedInPreset('investors')">[💼] FIND_INVESTORS</button>
+      <button class="action-btn ab-li" style="opacity:.85" ${busy?"disabled":""} onclick="setMode('linkedin');switchView('team');handleLinkedInPreset('founders')">[👤] SIMILAR_FOUNDERS</button>
+      <button class="action-btn ab-li" style="opacity:.7" ${busy?"disabled":""} onclick="setMode('linkedin');switchView('team');handleLinkedInPreset('posts')">[📝] LINKEDIN_POSTS</button>
+      <div class="rp-sec">Schedule</div>
+      <div class="sched-row">
+        <div class="sr-ico">🤖</div>
+        <div class="sr-inf"><div class="sr-t">Autonomous Mode</div><div class="sr-s">${autoMode?"Chal raha hai — har 25 min":"Band hai"}</div></div>
+        <button class="sr-tog ${autoMode?"on":""}" onclick="toggleAuto()"></button>
+      </div>
+      <div class="sched-row">
+        <div class="sr-ico">☀️</div>
+        <div class="sr-inf"><div class="sr-t">Daily Standup</div><div class="sr-s">Manual ya auto mode mein</div></div>
+        <button class="sr-tog" onclick="runStandup()"></button>
+      </div>
+      <div class="rp-sec">Today's feed</div>
+      <div style="font-size:11px;color:var(--mut2);padding:4px;background:var(--s2);border-radius:8px;line-height:1.6">
+        Messages: ${feed.filter(f=>f.type!=="sys").length}<br>
+        Reports: ${reports.filter(r=>r.proj===curProj).length}<br>
+        Tasks done: ${tasks.filter(t=>t.proj===curProj&&t.status==="done").length}
+      </div>
+    `;
+  } else if(rpPanel==="reports"){
+    const reps=[...reports].filter(r=>r.proj===curProj).reverse().slice(0,10);
+    b.innerHTML=reps.length?reps.map(r=>`<div class="rep-card">
+      <div class="rc-top"><div class="rc-em">${r.agentEmoji}</div>
+        <div><div class="rc-n">${r.agentName}</div><div class="rc-r">${r.agentRole}</div></div>
+        <span class="rc-proj ${r.proj}">${PROJ[r.proj].name}</span>
+      </div>
+      <div class="rc-body">${r.content.slice(0,90)}...</div>
+      <div class="rc-time">${r.time}</div>
+    </div>`).join(''):`<div class="empty-rp">Abhi tak koi report nahi ayi.<br>Standup run karo ya agents se report maango.</div>`;
+  } else if(rpPanel==="memory"){
+    const m=memory[curProj]||{};
+    const entries=Object.entries(m);
+    b.innerHTML=`<div class="rp-sec">Agent Memory — ${PROJ[curProj].name}</div>
+      ${entries.length?entries.map(([k,v])=>`<div class="mem-item">
+        <div class="mi-key">${k.replace(/_/g," ")}</div>
+        <div class="mi-val">${String(v).slice(0,80)}</div>
+      </div>`).join(''):`<div class="empty-rp">Memory abhi khaali hai.<br>Agents kaam karte karte yaad rakhna shuru kar denge.</div>`}
+      ${entries.length?`<button style="width:100%;padding:6px;border-radius:7px;border:1px solid var(--b2);background:transparent;color:var(--err);font-family:'DM Sans';font-size:11px;cursor:pointer;margin-top:6px" onclick="clearMem()">🗑 Memory Clear Karo</button>`:""}`;
+  }
+}
+
+// ── TASK BOARD ──
+function renderBoard(){
+  const ags=AGENTS[curProj];
+  const cols=[{id:"pending",l:"Pending",c:"#f59e0b"},{id:"working",l:"Working",c:"#818cf8"},{id:"done",l:"Done",c:"#22c55e"}];
+  let html=`<div class="add-col">
+    <div class="ac-t">Task Assign Karo</div>
+    <div class="ac-l">Agent</div>
+    <select class="ac-el" id="acAg">${ags.map(a=>`<option value="${a.id}">${a.e} ${a.name} — ${a.role}</option>`).join('')}</select>
+    <div class="ac-l" style="margin-top:6px">Task</div>
+    <textarea class="ac-ta" id="acTa" placeholder="Kya banana hai?"></textarea>
+    <div class="ac-btns">
+      <button class="ac-btn" style="background:linear-gradient(135deg,var(--purple),#6d28d9)" id="acRunBtn" onclick="assignTask(false)">Run Task ↗</button>
+      <button class="ac-btn" style="background:linear-gradient(135deg,var(--research),#9333ea)" onclick="assignTask(true)">🔍 Research Task</button>
+      <button class="ac-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)" onclick="assignPPT()">📊 PPT Banao</button>
+    </div>
+  </div>`;
+  cols.forEach(col=>{
+    const ct=tasks.filter(t=>t.proj===curProj&&t.status===col.id);
+    html+=`<div class="board-col">
+      <div class="bc-h"><div class="bc-t"><div class="bc-dot" style="background:${col.c};box-shadow:0 0 6px ${col.c}"></div>${col.l.toUpperCase()}</div><span class="bc-cnt">[${ct.length}]</span></div>
+      <div class="bc-b">${ct.length?ct.map(t=>`<div class="tcard">
+        <div class="tc-t">
+          <span class="tc-proj ${t.proj}">${PROJ[t.proj].name}</span>
+          <span class="tc-ag ${t.status==="working"?"pulse":""}">${t.agentEmoji} ${t.agentName}</span>
+          ${t.isRes?`<span class="tc-badge res">Research</span>`:""}
+          ${t.isPPT?`<span class="tc-badge ppt">PPT</span>`:""}
+        </div>
+        <div class="tc-title">${t.title}</div>
+        ${t.result?`<div class="tc-prev">${t.result.slice(0,120)}...</div>`:""}
+        <div class="tc-foot"><span class="tc-time">${t.time}</span>
+          <div class="tc-btns">
+            ${t.status==="pending"?`<button class="tcb blue" onclick="runBoardTask('${t.id}')">Run</button>`:""}
+            ${t.result?`<button class="tcb blue" onclick="viewResult('${t.id}')">View</button>`:""}
+            ${t.result?`<button class="tcb" onclick="exportTask('${t.id}')">Export</button>`:""}
+            <button class="tcb red" onclick="delTask('${t.id}')">✕</button>
+          </div>
+        </div>
+      </div>`).join(''):`<div style="text-align:center;padding:12px;color:var(--mut);font-size:11px">Khali</div>`}
+      </div>
+    </div>`;
+  });
+  document.getElementById("vBoard").innerHTML=`<div class="board-outer">${html}</div>`;
+}
+
+async function assignTask(isRes){
+  if(!apiKeySet){showKeyModal();return;}
+  const agId=document.getElementById("acAg").value;
+  const txt=document.getElementById("acTa").value.trim();
+  if(!txt){alert("Task describe karo.");return;}
+  const ag=AGENTS[curProj].find(a=>a.id===agId);
+  const btn=document.getElementById("acRunBtn");if(btn){btn.disabled=true;btn.textContent="Chal raha hai...";}
+  const t={id:"t"+Date.now(),proj:curProj,agentId:ag.id,agentName:ag.name,
+    agentRole:ag.role,agentEmoji:ag.e,title:txt.slice(0,65),fullPrompt:txt,
+    status:"working",result:"",time:now(),isRes,isPPT:false};
+  tasks.push(t);saveData();renderBoard();
+  try{
+    const prompt=isRes
+      ?`Deep research: "${txt}". Web search simulate karo. Detailed findings do with data, competitive intelligence, aur ${PROJ[curProj].name} ke liye specific recommendations. Thorough raho.`
+      :`TASK: ${txt}\n\nComplete, detailed, ready-to-use deliverable banao. Tables, headers, structured sections use karo.`;
+    t.result=await callAI(ag.sys,prompt);t.status="done";
+  }catch(e){t.result="Error: "+e.message;t.status="pending";}
+  saveData();if(btn){btn.disabled=false;btn.textContent="Run Task ↗";}renderBoard();
+}
+async function assignPPT(){
+  if(!apiKeySet){showKeyModal();return;}
+  const agId=document.getElementById("acAg").value;
+  const txt=document.getElementById("acTa").value.trim();
+  if(!txt){alert("PPT topic likho.");return;}
+  switchView("team");setMode("ppt");
+  document.getElementById("mainIn").value=txt;
+  await handleSend();
+}
+async function runBoardTask(id){
+  if(!apiKeySet)return;
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const ag=Object.values(AGENTS).flat().find(a=>a.id===t.agentId);if(!ag)return;
+  t.status="working";saveData();renderBoard();
+  try{t.result=await callAI(ag.sys,`TASK: ${t.fullPrompt||t.title}\n\nComplete deliverable banao.`);t.status="done";}
+  catch(e){t.result="Error: "+e.message;t.status="pending";}
+  saveData();renderBoard();
+}
+function viewResult(id){
+  const t=tasks.find(x=>x.id===id);if(!t||!t.result)return;
+  const w=window.open("","_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${t.agentName}</title>
+  <style>body{font-family:system-ui;max-width:820px;margin:40px auto;padding:0 24px;
+    background:#07070d;color:#eeeef8;line-height:1.75;}
+    h1{font-size:18px;color:#a78bfa;margin-bottom:4px;}
+    .meta{font-size:12px;color:#606080;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:12px;margin-bottom:24px;}
+    h2{font-size:16px;font-weight:600;margin:14px 0 5px;}h3{font-size:14px;font-weight:600;margin:10px 0 4px;}
+    pre{background:#161624;border-radius:8px;padding:14px;overflow-x:auto;white-space:pre-wrap;font-size:12px;}
+    table{width:100%;border-collapse:collapse;margin:10px 0;}
+    th{background:#1d1d2e;padding:7px 10px;border:1px solid rgba(255,255,255,.08);}
+    td{padding:7px 10px;border:1px solid rgba(255,255,255,.05);}
+    li{margin-bottom:4px;}strong{font-weight:600;}
+    .dl{position:fixed;top:16px;right:16px;background:#7c3aed;color:#fff;border:none;
+      padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;}
+  </style></head><body>
+  <button class="dl" onclick="const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([document.querySelector('#raw').textContent],{type:'text/plain'}));a.download='${t.agentName}-output.txt';a.click()">📥 Export .txt</button>
+  <h1>${t.agentEmoji} ${t.agentName} (${t.agentRole})</h1>
+  <div class="meta">${t.title} · ${t.time} · ${PROJ[t.proj].name}</div>
+  <div>${fmtHTML(t.result)}</div>
+  <pre id="raw" style="display:none">${t.result}</pre>
+  </body></html>`);
+}
+function exportTask(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([`${t.agentName} (${t.agentRole}) — ${PROJ[t.proj].name}\n${t.title}\n${t.time}\n${"=".repeat(50)}\n\n${t.result}`],{type:"text/plain"}));
+  a.download=`${t.agentName}-${t.isRes?"research":"output"}.txt`;a.click();
+}
+function delTask(id){tasks=tasks.filter(t=>t.id!==id);saveData();renderBoard();}
+
+// ── ANALYTICS ──
+function renderAnalytics(){
+  const all=tasks;const allAgs=Object.values(AGENTS).flat();
+  const done=all.filter(t=>t.status==="done").length;
+  const kT=all.filter(t=>t.proj==="k").length;const uT=all.filter(t=>t.proj==="u").length;
+  const resT=all.filter(t=>t.isRes).length;const pptT=all.filter(t=>t.isPPT).length;
+  const agRows=allAgs.map(a=>{
+    const cnt=all.filter(t=>t.agentId===a.id).length;
+    const rc=reports.filter(r=>r.agentId===a.id).length;
+    const mx=Math.max(...allAgs.map(x=>all.filter(t=>t.agentId===x.id).length),1);
+    return `<div class="perf-r">
+      <div class="pr-em">${a.e}</div>
+      <div class="pr-inf">
+        <div class="pr-n">${a.name} <span style="font-size:10px;color:var(--mut);font-weight:400">${a.role} · ${PROJ[a.proj].name}</span></div>
+        <div class="pr-bw"><div class="pr-bar"><div class="pr-fill" style="width:${Math.round(cnt/mx*100)}%;background:${PROJ[a.proj].bar}"></div></div>
+        <div class="pr-cnt">${cnt} tasks · ${rc} reports</div></div>
+      </div>
+      <span class="pr-st ${cnt>0?"ps-a":"ps-i"}">${cnt>0?"Active":"Idle"}</span>
+    </div>`;
+  }).join('');
+  const recent=[...all].reverse().slice(0,8);
+  document.getElementById("vAnalytics").innerHTML=`<div class="an-wrap">
+    <div class="an-kpis">
+      <div class="kpi"><div class="kpi-l">Total Tasks</div><div class="kpi-v" style="color:var(--info)">${all.length}</div><div class="kpi-s">Dono projects</div></div>
+      <div class="kpi"><div class="kpi-l">Completed</div><div class="kpi-v" style="color:var(--ok)">${done}</div><div class="kpi-s">${all.length?Math.round(done/all.length*100):0}%</div></div>
+      <div class="kpi"><div class="kpi-l">Research</div><div class="kpi-v" style="color:var(--research)">${resT}</div><div class="kpi-s">Deep research</div></div>
+      <div class="kpi"><div class="kpi-l">Kaamefy</div><div class="kpi-v" style="color:var(--k)">${kT}</div></div>
+      <div class="kpi"><div class="kpi-l">UniSafeX</div><div class="kpi-v" style="color:var(--u)">${uT}</div></div>
+    </div>
+    <div class="an-row">
+      <div class="an-card"><div class="an-t">12 Agents — Performance Board</div>
+        ${agRows||'<div style="color:var(--mut);font-size:11px">Tasks assign karo to data aayega.</div>'}
+      </div>
+      <div class="an-card"><div class="an-t">Recent Activity</div>
+        ${recent.length?recent.map(t=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--b1)">
+          <div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;background:${t.status==="done"?"var(--ok)":t.status==="working"?"var(--info)":"var(--warn)"}"></div>
+          <div><div style="font-size:11px;font-weight:500">${t.agentEmoji} ${t.agentName} — ${t.title}</div>
+          <div style="font-size:10px;color:var(--mut)">${PROJ[t.proj].name} · ${t.time}</div></div>
+        </div>`).join(''):'<div style="color:var(--mut);font-size:11px">Koi activity nahi abhi tak.</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── MEMORY ──
+function getMem(agId){
+  const m=memory[curProj]||{};
+  return Object.entries(m).filter(([k])=>k.startsWith(agId+"_")).map(([k,v])=>`${k.replace(agId+"_","")}: ${v}`).join("\n");
+}
+function saveMem(agId,key,val){
+  if(!memory[curProj])memory[curProj]={};
+  memory[curProj][agId+"_"+key]=String(val).slice(0,200);
+  try{localStorage.setItem("v5_memory",JSON.stringify(memory));}catch(e){}
+}
+function clearMem(){memory[curProj]={};try{localStorage.setItem("v5_memory",JSON.stringify(memory));}catch(e){}renderRp();}
+
+// ── UTILS ──
+function setSt(id,st){
+  agSt[id]=st;
+  const el=document.getElementById("an-"+id);if(!el)return;
+  const span=el.querySelector(".an-st");if(!span)return;
+  const map={idle:"● Idle",working:"⟳ Working",researching:"🔍 Research",reported:"✓ Done",messaging:"↔ Messaging"};
+  const cls={idle:"stidle",working:"stworking",researching:"stretching",reported:"streported",messaging:"stmessaging"};
+  span.className="an-st "+(cls[st]||"stidle");
+  span.textContent=map[st]||"● Idle";
+}
+function clearFeed(){feed=[];Object.values(AGENTS).flat().forEach(a=>setSt(a.id,"idle"));renderFeed();}
+function saveReport(ag,goal,content){
+  reports.push({id:"r"+Date.now()+Math.random(),proj:curProj,agentId:ag.id,
+    agentName:ag.name,agentRole:ag.role,agentEmoji:ag.e,content,goal,time:now()});
+  saveData();
+}
+function logTask(ag,title,result){
+  tasks.push({id:"t"+Date.now(),proj:curProj,agentId:ag.id,agentName:ag.name,
+    agentRole:ag.role,agentEmoji:ag.e,title:title.slice(0,65),result,status:"done",time:now()});
+  saveData();
+}
+function saveData(){
+  try{
+    localStorage.setItem("v5_tasks",JSON.stringify(tasks.slice(-200)));
+    localStorage.setItem("v5_reports",JSON.stringify(reports.slice(-100)));
+  }catch(e){}
+}
+function exportAll(){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({tasks,reports,memory,exported:new Date().toISOString()},null,2)],{type:"application/json"}));
+  a.download="ai-centre-v5-backup.json";a.click();
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function now(){return new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});}
+
+function fmt(t){
+  t=(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  t=t.replace(/```[\w]*\n?([\s\S]*?)```/g,"<pre><code>$1</code></pre>");
+  t=t.replace(/`([^`\n]+)`/g,"<code>$1</code>");
+  t=t.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+  t=t.replace(/^### (.+)$/gm,"<h3>$1</h3>");t=t.replace(/^## (.+)$/gm,"<h2>$1</h2>");t=t.replace(/^# (.+)$/gm,"<h2>$1</h2>");
+  t=t.replace(/^\|(.+)\|$/gm,r=>"<tr>"+r.split("|").filter(Boolean).map(c=>`<td>${c.trim()}</td>`).join("")+"</tr>");
+  t=t.replace(/(<tr>[\s\S]*?<\/tr>\n?)+/g,m=>`<table>${m}</table>`);
+  t=t.replace(/^[\*\-] (.+)$/gm,"<li>$1</li>");t=t.replace(/^\d+\. (.+)$/gm,"<li>$1</li>");
+  t=t.replace(/\n\n+/g,"<br><br>").replace(/\n/g,"<br>");return t;
+}
+function fmtHTML(t){
+  t=(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  t=t.replace(/```[\w]*\n?([\s\S]*?)```/g,"<pre>$1</pre>");
+  t=t.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+  t=t.replace(/^### (.+)$/gm,"<h3>$1</h3>");t=t.replace(/^## (.+)$/gm,"<h2>$1</h2>");
+  t=t.replace(/^[\*\-] (.+)$/gm,"<li>$1</li>");
+  t=t.replace(/\n\n+/g,"<br><br>").replace(/\n/g,"<br>");return t;
+}
+
+
+// ── LINKEDIN INTELLIGENCE ENGINE ──
+async function linkedinMode(txt){
+  // Find LinkedIn agent for current project
+  const linAgent = AGENTS[curProj].find(a=>a.linkedinMode);
+  const agent = linAgent || AGENTS[curProj].find(a=>a.id===PROJ[curProj].ceo);
+  setSt(agent.id,"working");
+  showTyping(agent.e, agent.name, "LinkedIn research kar raha hai...");
+
+  // Build search queries from input
+  const searchQueries = [
+    `${txt} India startup investors`,
+    `${txt} LinkedIn founders`,
+    `${PROJ[curProj].name} ${txt}`
+  ];
+
+  try{
+    const searchCtx = tavilyKey
+      ? await (async()=>{
+          addFeed({type:"sys",content:"🌐 Real web search chal rahi hai..."});
+          const results = await Promise.all(searchQueries.slice(0,2).map(q=>webSearch(q)));
+          return "\n\nREAL WEB SEARCH RESULTS:\n"+results.join("\n\n---\n\n");
+        })()
+      : "";
+
+    const result = await callAI(agent.sys,
+      `LinkedIn task for ${PROJ[curProj].name}: "${txt}"
+${searchCtx}
+Produce a COMPREHENSIVE LinkedIn intelligence report with:
+1. **Specific Names** — real people, funds, companies (not generic)
+2. **LinkedIn Profiles** — format as "Name | Title | Company | linkedin.com/in/..."
+3. **Ready-to-send messages** — complete, personalized, copy-paste ready
+4. **Action checklist** — exact steps to take today
+
+Be specific. Real names. Real funds. Real strategies.`);
+
+    hideTyping(); setSt(agent.id,"reported");
+    addFeed({type:"agent", agentEmoji:agent.e,
+      agentName:`${agent.name} (${agent.role}) — LinkedIn Intel`,
+      content:result});
+    logTask(agent, "LinkedIn: "+txt.slice(0,55), result);
+    saveReport(agent, "LinkedIn: "+txt, result);
+  }catch(e){
+    hideTyping(); setSt(agent.id,"idle");
+    addFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,content:"⚠️ "+e.message});
+  }
+}
+
+async function handleLinkedInPreset(type){
+  if(!apiKeySet){showKeyModal();return;}
+  if(busy)return;
+  busy=true; document.getElementById("sendBtn").disabled=true;
+
+  const linAgent = AGENTS[curProj].find(a=>a.linkedinMode);
+  const agent = linAgent || AGENTS[curProj][0];
+  const p = PROJ[curProj];
+
+  const presets = {
+    investors: {
+      label: "🔍 Investor Hunt",
+      queries: [`India VC investors ${p.name.includes("Kaamefy")?"marketplace gig economy":"GovTech safety"} 2024`,
+                `angel investors India ${p.name.includes("Kaamefy")?"blue collar startup":"digital identity"}`],
+      prompt: `Find REAL investors for ${p.name} (${p.desc}).
+Search results above provide real data. Produce:
+
+## 🎯 Top 15 Investors to Target
+For each investor give:
+- **Name** | Fund | Position
+- **Why relevant**: their investment thesis match
+- **Portfolio**: 2-3 similar companies they funded
+- **LinkedIn**: linkedin.com/in/[estimated-profile]
+- **Best approach**: how to reach them
+
+## 📧 3 Ready-to-Send Connection Requests
+Personalized for each top investor. Copy-paste ready.
+
+## 🏆 Top 5 Indian VCs for ${p.name}
+With fund size, stage they invest, and contact strategy.
+
+## ⚡ This Week's Action Plan
+Day 1, Day 2, Day 3 specific LinkedIn actions.`
+    },
+    founders: {
+      label: "👤 Similar Founders",
+      queries: [`founders India similar to ${p.name} startup`,
+                `${p.name.includes("Kaamefy")?"Urban Company UrbanClap founder story":"digital identity safety app founder India"}`],
+      prompt: `Find founders who built similar companies to ${p.name} (${p.desc}).
+
+## 🔍 15 Similar Founders Worldwide
+For each:
+- **Name** | Company | Country
+- **What they built**: (similarity to ${p.name})
+- **Their journey**: funding, growth, lessons
+- **LinkedIn**: estimated profile
+- **What to learn from them**
+
+## 💡 Key Lessons from Their Stories
+Top 5 learnings for ${p.name} founder
+
+## 🤝 5 Founders to Connect With This Week
+With personalized connection message for each — copy-paste ready.
+
+## 📊 What Made Similar Companies Succeed/Fail
+Patterns and lessons for ${p.name}`
+    },
+    outreach: {
+      label: "✉️ Outreach Scripts",
+      queries: [`${p.name} investor outreach message template`,
+                `startup founder cold outreach LinkedIn best practices 2024`],
+      prompt: `Create a complete LinkedIn outreach toolkit for ${p.name} founder.
+
+## 📨 10 LinkedIn Message Templates
+Each template for a different scenario:
+1. Cold investor outreach
+2. Warm intro through mutual connection
+3. Following up after no reply (day 7)
+4. Following up after no reply (day 14)
+5. Connecting with similar founder
+6. Requesting advice/mentorship
+7. Partnership exploration
+8. Accelerator/incubator connection
+9. Media/journalist outreach
+10. Potential advisor connection
+
+Each message: Subject + Body (under 300 chars for connection request, under 1000 chars for InMail)
+
+## 📅 7-Day LinkedIn Outreach Sequence
+Daily actions and message schedule
+
+## ⚠️ Common Mistakes to Avoid
+What NOT to do in LinkedIn outreach`
+    },
+    posts: {
+      label: "📝 LinkedIn Content Calendar",
+      queries: [`LinkedIn content strategy startup founder India 2024`,
+                `viral LinkedIn posts startup growth`],
+      prompt: `Create a 30-day LinkedIn content calendar for ${p.name} founder's personal brand.
+
+## 📅 30-Day LinkedIn Post Calendar
+For each post give:
+- **Day & Date**
+- **Post type**: (personal story / insight / milestone / question / data)
+- **Hook** (first line — must stop scroll)
+- **Full post content** (150-300 words, ready to publish)
+- **Call to action**
+- **Best time to post**
+- **Expected engagement type**
+
+Focus themes: ${p.name.includes("Kaamefy") ?
+  "creating employment, gig economy, building in India, worker stories, startup journey" :
+  "foreigner safety, GovTech, building for impact, digital identity, India opportunity"}
+
+## 🔥 5 Viral Post Templates
+Frameworks that consistently work for startup founders
+
+## 📊 LinkedIn Profile Optimization Tips
+Headline, About section, Featured section recommendations for ${p.name} founder`
+    },
+    websearch: {
+      label: "🌐 Live Web Search",
+      queries: [`${p.name} ${p.desc} latest news 2024`,
+                `${p.name.includes("Kaamefy")?"Urban Company competitor India 2024":"GovTech India startup 2024"}`],
+      prompt: `Using the real web search results above, give ${p.name} the most current market intelligence:
+
+## 📰 Latest News & Developments
+What's happening RIGHT NOW in ${p.name}'s market
+
+## 🏆 Competitor Updates
+What competitors have done recently — funding, features, partnerships
+
+## 💰 Recent Funding Activity
+Who got funded in this space recently — amounts, investors, valuations
+
+## 🌊 Market Trends Right Now
+Top 3 trends shaping this industry today
+
+## ⚡ Immediate Opportunities
+Based on this research, what should ${p.name} do THIS WEEK`
+    }
+  };
+
+  const preset = presets[type];
+  if(!preset){busy=false;document.getElementById("sendBtn").disabled=false;return;}
+
+  addFeed({type:"user", content:`💼 LinkedIn: ${preset.label}`});
+  setSt(agent.id,"working");
+  showTyping(agent.e, agent.name, `${preset.label} chal raha hai...`);
+
+  try{
+    let searchCtx = "";
+    if(tavilyKey && preset.queries){
+      addFeed({type:"sys", content:`🌐 Searching: ${preset.queries[0]}...`});
+      const results = await Promise.all(preset.queries.map(q=>webSearch(q)));
+      searchCtx = "\n\nREAL WEB SEARCH RESULTS:\n"+results.join("\n\n---\n\n");
+    }
+    const result = await callAI(agent.sys, preset.prompt + searchCtx);
+    hideTyping(); setSt(agent.id,"reported");
+
+    // Special formatting for investor/founder lists
+    addFeed({type:"agent", agentEmoji:agent.e,
+      agentName:`${agent.name} — ${preset.label}`,
+      content:result});
+    logTask(agent, `LinkedIn ${preset.label}`, result);
+    saveReport(agent, `LinkedIn: ${preset.label}`, result);
+
+    // Also auto-save as downloadable report
+    const reportId = "li"+Date.now();
+    window["report_"+reportId] = result;
+    window["reportTitle_"+reportId] = preset.label;
+    addFeed({type:"sys",
+      content:`✅ Report ready! <button onclick="downloadReport('${reportId}')" style="background:#0a66c2;color:#fff;border:none;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:11px;margin-left:6px">📥 Download Report</button>`});
+
+  }catch(e){
+    hideTyping(); setSt(agent.id,"idle");
+    addFeed({type:"agent",agentEmoji:agent.e,agentName:agent.name,content:"⚠️ "+e.message});
+  }
+  busy=false; document.getElementById("sendBtn").disabled=false;
+  renderRp();
+}
+
+function downloadReport(id){
+  const content = window["report_"+id]||"";
+  const title = window["reportTitle_"+id]||"LinkedIn Report";
+  if(!content){alert("Report nahi mili.");return;}
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([`${PROJ[curProj].name} — LinkedIn Intelligence\n${title}\n${new Date().toLocaleString()}\n${"=".repeat(60)}\n\n${content}`],{type:"text/plain"}));
+  a.download=`${PROJ[curProj].name}-LinkedIn-${title.replace(/[^a-zA-Z0-9]/g,"-")}.txt`;
+  a.click();
+}
+
+// ── TAVILY KEY SETUP (called from settings) ──
+function setTavilyKey(){
+  const k = prompt("Tavily API Key paste karo (FREE at tavily.com):\n\nAgr nahi hai to skip karo — agents bina real web search ke bhi kaam karte hain.");
+  if(k && k.length>5){
+    tavilyKey=k;
+    sessionStorage.setItem("v5_tavily",k);
+    addFeed({type:"sys",content:"✅ Tavily web search connected! Ab agents real web search karenge."});
+  }
+}
+
+// ── API ──
+let tavilyKey = sessionStorage.getItem("v5_tavily")||"";
+
+async function webSearch(query){
+  if(!tavilyKey) return `[Web search skipped — no Tavily key. Simulating search for: "${query}"]`;
+  try{
+    const r=await fetch("https://api.tavily.com/search",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({api_key:tavilyKey,query,search_depth:"basic",max_results:5})});
+    const d=await r.json();
+    if(d.error) return `[Search error: ${d.error}]`;
+    const results=(d.results||[]).map((x,i)=>`${i+1}. ${x.title}\n${x.url}\n${x.content?.slice(0,200)||""}`).join("\n\n");
+    return `Web search results for "${query}":\n\n${results}`;
+  }catch(e){return `[Search failed: ${e.message}]`;}
+}
+
+async function callAI(sys,msg){
+  if(!apiKey)throw new Error("API key nahi hai. Key setup karo.");
+  const body=JSON.stringify({
+    model:curModel,
+    messages:[
+      {role:"system",content:(sys||"You are a helpful assistant.").slice(0,3000)},
+      {role:"user",content:msg||"Please respond."}
+    ],
+    max_tokens:1000,temperature:0.75
+  });
+  let res;
+  try{res=await fetch(GROQ_URL,{method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},body});}
+  catch(e){throw new Error("Network error: "+e.message+". GitHub Pages par deploy karo.");}
+  const text=await res.text();
+  let d;try{d=JSON.parse(text);}catch(e){throw new Error("Invalid response: "+text.slice(0,100));}
+  if(!res.ok)throw new Error("API "+res.status+": "+(d?.error?.message||text.slice(0,150)));
+  if(d.error)throw new Error(d.error.message);
+  return d.choices?.[0]?.message?.content||"Koi response nahi aaya.";
+}
+
+async function callAIWithSearch(sys, msg, queries){
+  // Run web searches first, then inject results into AI call
+  let searchContext = "";
+  if(tavilyKey && queries && queries.length){
+    addFeed({type:"sys", content:`🌐 Web search chal rahi hai: ${queries.slice(0,2).join(" · ")}...`});
+    const results = await Promise.all(queries.slice(0,3).map(q=>webSearch(q)));
+    searchContext = "\n\nREAL WEB SEARCH RESULTS:\n"+results.join("\n\n---\n\n");
+  }
+  return callAI(sys, msg + searchContext);
+}
+
+window.onload=()=>document.getElementById("pwIn").focus();
+
+</script>
+</body>
+</html>
